@@ -42,9 +42,7 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-brand-100 text-brand-600 mb-4 shadow-sm">
-                    <Store className="h-8 w-8" />
-                </div>
+
                 <h2 className="text-center text-3xl font-extrabold text-slate-900 tracking-tight">
                     ShopFlow
                 </h2>
@@ -136,27 +134,7 @@ const Login = () => {
                         </div>
                     </form>
 
-                    {!isSuperAdmin && (
-                        <div className="mt-6">
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-slate-200" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-slate-500">New to ShopFlow?</span>
-                                </div>
-                            </div>
 
-                            <div className="mt-6">
-                                <Link
-                                    to="/register"
-                                    className="w-full flex justify-center btn-secondary"
-                                >
-                                    Create a Tenant Account
-                                </Link>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

@@ -1,8 +1,7 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Create connection pool
-const pool = new Pool({
+const poolConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
@@ -11,7 +10,15 @@ const pool = new Pool({
   max: parseInt(process.env.DB_POOL_MAX || '10', 10),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-});
+};
+
+// Render and other managed Postgres often require SSL in production
+if (process.env.NODE_ENV === 'production') {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+// Create connection pool
+const pool = new Pool(poolConfig);
 
 /**
  * Translates MySQL '?' parameters to PostgreSQL '$1, $2' parameters.
