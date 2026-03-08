@@ -60,7 +60,7 @@ EXPOSE 80 5000
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'sed -i "s/listen 80;/listen ${PORT:-80};/g" /etc/nginx/nginx.conf' >> /app/start.sh && \
     echo 'nginx' >> /app/start.sh && \
-    echo 'cd /app/backend && PORT=5000 node server.js' >> /app/start.sh && \
+    echo 'cd /app/backend && node pg_init.js && PORT=5000 node server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
 # Start services
