@@ -25,10 +25,8 @@ const authenticateUser = async (email, password, isSuperAdmin = false) => {
         if (rows.length === 0) throw new Error('Invalid credentials');
         userRecord = rows[0];
 
-        // MySQL BIT(1) could be Buffer or Number depending on cast options
-        const isActive = Buffer.isBuffer(userRecord.is_active)
-            ? userRecord.is_active[0] === 1
-            : userRecord.is_active == 1; // Loose check handles true/1
+        // PostgreSQL returns boolean true/false native, MySQL BIT(1) could be Buffer
+        const isActive = userRecord.is_active === true || userRecord.is_active === 1 || (Buffer.isBuffer(userRecord.is_active) && userRecord.is_active[0] === 1);
 
         if (!isActive) throw new Error('Account inactive');
 
@@ -55,7 +53,7 @@ const authenticateUser = async (email, password, isSuperAdmin = false) => {
         if (rows.length === 0) throw new Error('Invalid credentials');
         userRecord = rows[0];
 
-        const isActive = Buffer.isBuffer(userRecord.is_active) ? userRecord.is_active[0] === 1 : userRecord.is_active === 1;
+        const isActive = userRecord.is_active === true || userRecord.is_active === 1 || (Buffer.isBuffer(userRecord.is_active) && userRecord.is_active[0] === 1);
         if (!isActive) throw new Error('Account inactive');
 
         const isValid = await bcrypt.compare(password, userRecord.password_hash);

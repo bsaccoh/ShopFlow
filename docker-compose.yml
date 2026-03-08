@@ -7,39 +7,41 @@ services:
       args:
         - VITE_API_BASE_URL=/api/v1
     ports:
-      - "80:80"
+      - "8080:80"
     environment:
       - NODE_ENV=production
       - DB_HOST=db
       - DB_USER=${DB_USER:-root}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - DB_NAME=multi_tenant_pos
-      - DB_PORT=3306
+      - DB_PORT=5432
       - JWT_SECRET=${JWT_SECRET:-super_secret_for_jwt}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-another_secret_for_refresh}
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=http://localhost:8080
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
 
   db:
-    image: mysql:8.0
+    image: postgres:15-alpine
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
-      - MYSQL_DATABASE=multi_tenant_pos
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=multi_tenant_pos
     volumes:
-      - mysql_data:/var/lib/mysql
+      - pg_data:/var/lib/postgresql/data
       # Auto-run schema and seed files on creation
       - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./backend/database/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d multi_tenant_pos" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  pg_data:

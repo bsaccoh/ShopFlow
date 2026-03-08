@@ -159,11 +159,6 @@ const Login = () => {
                     )}
                 </div>
             </div>
-            <div className="mt-8 text-center text-sm text-slate-500">
-                Demo Credentials:<br />
-                Super Admin: admin@babahpos.com / SuperAdmin@2024!<br />
-                Tenant: admin@demoshop.com / Password123!
-            </div>
         </div>
     );
 };

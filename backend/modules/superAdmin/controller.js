@@ -15,31 +15,31 @@ const getDashboardStats = async (req, res) => {
         const [[{ count: usersThisWeek }]] = await query(`
             SELECT COUNT(*) as count
             FROM users
-            WHERE DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+            WHERE DATE(created_at) BETWEEN CURRENT_DATE - INTERVAL '6 days' AND CURRENT_DATE
         `);
 
         const [[currentMonthTenants]] = await query(`
             SELECT COUNT(*) as value
             FROM tenants
-            WHERE DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+            WHERE TO_CHAR(created_at, 'YYYY-MM') = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
         `);
         const [[previousMonthTenants]] = await query(`
             SELECT COUNT(*) as value
             FROM tenants
-            WHERE DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')
+            WHERE TO_CHAR(created_at, 'YYYY-MM') = DATE_FORMAT(CURRENT_DATE - INTERVAL '1 months', '%Y-%m')
         `);
 
         const [[currentMonthRevenue]] = await query(`
             SELECT COALESCE(SUM(amount), 0) as value
             FROM subscriptions
             WHERE status IN ('ACTIVE', 'TRIAL', 'PAST_DUE')
-              AND DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+              AND TO_CHAR(created_at, 'YYYY-MM') = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
         `);
         const [[previousMonthRevenue]] = await query(`
             SELECT COALESCE(SUM(amount), 0) as value
             FROM subscriptions
             WHERE status IN ('ACTIVE', 'TRIAL', 'PAST_DUE')
-              AND DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')
+              AND TO_CHAR(created_at, 'YYYY-MM') = DATE_FORMAT(CURRENT_DATE - INTERVAL '1 months', '%Y-%m')
         `);
 
         const [monthlyGrowthRows] = await query(`
@@ -47,22 +47,22 @@ const getDashboardStats = async (req, res) => {
                    COALESCE(SUM(tenants_added), 0) as tenants,
                    COALESCE(SUM(revenue_added), 0) as revenue
             FROM (
-                SELECT DATE_FORMAT(created_at, '%Y-%m') as month_key,
+                SELECT TO_CHAR(created_at, 'YYYY-MM') as month_key,
                        COUNT(*) as tenants_added,
                        0 as revenue_added
                 FROM tenants
-                WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 6 MONTH)
-                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                WHERE created_at >= DATE_SUB(TO_CHAR(CURRENT_DATE, 'YYYY-MM-01'), INTERVAL 6 MONTH)
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM')
 
                 UNION ALL
 
-                SELECT DATE_FORMAT(created_at, '%Y-%m') as month_key,
+                SELECT TO_CHAR(created_at, 'YYYY-MM') as month_key,
                        0 as tenants_added,
                        COALESCE(SUM(amount), 0) as revenue_added
                 FROM subscriptions
-                WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 6 MONTH)
+                WHERE created_at >= DATE_SUB(TO_CHAR(CURRENT_DATE, 'YYYY-MM-01'), INTERVAL 6 MONTH)
                   AND status IN ('ACTIVE', 'TRIAL', 'PAST_DUE')
-                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM')
             ) merged
             GROUP BY month_key
             ORDER BY month_key ASC
@@ -95,7 +95,7 @@ const getDashboardStats = async (req, res) => {
         const [weeklySignupsRows] = await query(`
             SELECT DATE(created_at) as day, COUNT(*) as signups
             FROM tenants
-            WHERE DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+            WHERE DATE(created_at) BETWEEN CURRENT_DATE - INTERVAL '6 days' AND CURRENT_DATE
             GROUP BY DATE(created_at)
             ORDER BY day ASC
         `);

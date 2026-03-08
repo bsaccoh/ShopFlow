@@ -8,13 +8,13 @@ const getTenantDashboardStats = async (req, res) => {
         const [[{ todays_sales }]] = await query(`
             SELECT COALESCE(SUM(total_amount), 0) as todays_sales 
             FROM sales 
-            WHERE tenant_id = ? AND DATE(created_at) = CURDATE() AND status != 'VOIDED'
+            WHERE tenant_id = ? AND DATE(created_at) = CURRENT_DATE AND status != 'VOIDED'
         `, [tenantId]);
 
         const [[{ total_orders }]] = await query(`
             SELECT COUNT(id) as total_orders 
             FROM sales 
-            WHERE tenant_id = ? AND DATE(created_at) = CURDATE() AND status != 'VOIDED'
+            WHERE tenant_id = ? AND DATE(created_at) = CURRENT_DATE AND status != 'VOIDED'
         `, [tenantId]);
 
         const [[{ low_stock }]] = await query(`
@@ -55,7 +55,7 @@ const getTenantDashboardStats = async (req, res) => {
             FROM sales
             WHERE tenant_id = ?
               AND status != 'VOIDED'
-              AND DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+              AND DATE(created_at) BETWEEN CURRENT_DATE - INTERVAL '6 days' AND CURRENT_DATE
             GROUP BY DATE(created_at)
             ORDER BY day ASC
         `, [tenantId]);
@@ -85,29 +85,29 @@ const getTenantDashboardStats = async (req, res) => {
             JOIN sales s ON si.sale_id = s.id
             WHERE s.tenant_id = ?
               AND s.status != 'VOIDED'
-              AND DATE(s.created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+              AND DATE(s.created_at) BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE
             GROUP BY si.product_id, p.name
             ORDER BY quantity DESC, revenue DESC
             LIMIT 5
         `, [tenantId]);
 
         const [revenueRows] = await query(`
-            SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as day_key, COALESCE(SUM(total_amount), 0) as revenue
+            SELECT TO_CHAR(created_at, 'YYYY-MM-DD') as day_key, COALESCE(SUM(total_amount), 0) as revenue
             FROM sales
             WHERE tenant_id = ?
               AND status != 'VOIDED'
-              AND DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
-            GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+              AND DATE(created_at) BETWEEN CURRENT_DATE - INTERVAL '6 days' AND CURRENT_DATE
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
             ORDER BY day_key ASC
         `, [tenantId]);
 
 
         const [expenseRows] = await query(`
-            SELECT DATE_FORMAT(expense_date, '%Y-%m-%d') as day_key, COALESCE(SUM(amount), 0) as expense
+            SELECT TO_CHAR(expense_date, 'YYYY-MM-DD') as day_key, COALESCE(SUM(amount), 0) as expense
             FROM expenses
             WHERE tenant_id = ?
-              AND expense_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
-            GROUP BY DATE_FORMAT(expense_date, '%Y-%m-%d')
+              AND expense_date BETWEEN CURRENT_DATE - INTERVAL '6 days' AND CURRENT_DATE
+            GROUP BY TO_CHAR(expense_date, 'YYYY-MM-DD')
             ORDER BY day_key ASC
         `, [tenantId]);
 
@@ -180,7 +180,7 @@ const getSalesReport = async (req, res) => {
 
         // Revenue by date
         const [revenueByDate] = await query(`
-            SELECT DATE_FORMAT(created_at, ?) as period,
+            SELECT TO_CHAR(created_at, ?) as period,
                    COUNT(id) as sales_count,
                    COALESCE(SUM(total_amount), 0) as revenue
             FROM sales 
