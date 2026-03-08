@@ -1,16 +1,19 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const poolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'multi_tenant_pos',
-  port: process.env.DB_PORT || 5432,
-  max: parseInt(process.env.DB_POOL_MAX || '10', 10),
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-};
+const poolConfig = process.env.DATABASE_URL
+  ? { connectionString: process.env.DATABASE_URL }
+  : {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'multi_tenant_pos',
+    port: process.env.DB_PORT || 5432,
+  };
+
+poolConfig.max = parseInt(process.env.DB_POOL_MAX || '10', 10);
+poolConfig.idleTimeoutMillis = 30000;
+poolConfig.connectionTimeoutMillis = 2000;
 
 // Render and other managed Postgres often require SSL in production
 if (process.env.NODE_ENV === 'production') {
