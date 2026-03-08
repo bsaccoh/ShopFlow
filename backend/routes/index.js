@@ -1,0 +1,55 @@
+const express = require('express');
+const router = express.Router();
+
+const authRoutes = require('../modules/auth/routes');
+const tenantRoutes = require('../modules/tenants/routes');
+const branchRoutes = require('../modules/branches/routes');
+const categoryRoutes = require('../modules/categories/routes');
+const productRoutes = require('../modules/products/routes');
+const inventoryRoutes = require('../modules/inventory/routes');
+const salesRoutes = require('../modules/sales/routes');
+const paymentRoutes = require('../modules/payments/routes');
+const subscriptionRoutes = require('../modules/subscriptions/routes');
+const superAdminRoutes = require('../modules/superAdmin/routes');
+const reportRoutes = require('../modules/reports/routes');
+const userRoutes = require('../modules/users/routes');
+const customerRoutes = require('../modules/customers/routes');
+const activityLogRoutes = require('../modules/activityLogs/routes');
+const supplierRoutes = require('../modules/suppliers/routes');
+const returnRoutes = require('../modules/returns/routes');
+const purchaseOrderRoutes = require('../modules/purchaseOrders/routes');
+const discountRoutes = require('../modules/discounts/routes');
+const expenseRoutes = require('../modules/expenses/routes');
+const cashRegisterRoutes = require('../modules/cashRegister/routes');
+const storeSettingsRoutes = require('../modules/storeSettings/routes');
+const taxConfigRoutes = require('../modules/taxConfig/routes');
+const customerCreditRoutes = require('../modules/customerCredits/routes');
+const loyaltyPointRoutes = require('../modules/loyaltyPoints/routes');
+
+// Mount Modules
+router.use('/auth', authRoutes);
+router.use('/tenants', tenantRoutes);
+router.use('/branches', branchRoutes);
+router.use('/users', userRoutes);
+router.use('/customers', customerRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/products', productRoutes);
+router.use('/inventory', inventoryRoutes);
+router.use('/sales', salesRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/subscriptions', subscriptionRoutes);
+router.use('/super-admin', superAdminRoutes);
+router.use('/reports', reportRoutes);
+router.use('/activity-logs', activityLogRoutes);
+router.use('/suppliers', supplierRoutes);
+router.use('/returns', returnRoutes);
+router.use('/purchase-orders', purchaseOrderRoutes);
+router.use('/discounts', discountRoutes);
+router.use('/expenses', expenseRoutes);
+router.use('/cash-register', cashRegisterRoutes);
+router.use('/store-settings', storeSettingsRoutes);
+router.use('/tax-config', taxConfigRoutes);
+router.use('/customer-credits', customerCreditRoutes);
+router.use('/loyalty-points', loyaltyPointRoutes);
+
+module.exports = router;
