@@ -46,7 +46,8 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                         .item { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; }
                         .item-name { flex: 1; padding-right: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; }
                         .item-qty { width: 30px; text-align: center; }
-                        .item-price { width: 60px; text-align: right; }
+                        .item-price { width: 80px; text-align: right; }
+                        .item-total { width: 90px; text-align: right; font-weight: bold; }
                         .totals { padding: 8px 0; border-bottom: 1px dashed #333; }
                         .totals div { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 12px; }
                         .totals .grand-total { font-weight: bold; font-size: 14px; margin-top: 4px; }
@@ -89,7 +90,8 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                 .item { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; }
                 .item-name { flex: 1; padding-right: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; }
                 .item-qty { width: 30px; text-align: center; }
-                .item-price { width: 60px; text-align: right; }
+                .item-price { width: 80px; text-align: right; }
+                .item-total { width: 90px; text-align: right; font-weight: bold; }
                 .totals { padding: 8px 0; border-bottom: 1px dashed #333; }
                 .totals div { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 12px; }
                 .totals .grand-total { font-weight: bold; font-size: 14px; margin-top: 4px; }
@@ -103,6 +105,7 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
     };
 
     const formatCurrency = (v) => `LE ${parseFloat(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const formatSimple = (v) => parseFloat(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formatDate = (d) => {
         const dt = new Date(d || Date.now());
         return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -165,15 +168,15 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                                 <div className="flex justify-between font-bold text-[10px] text-slate-500 uppercase mb-2">
                                     <span className="flex-1">Item</span>
                                     <span className="w-10 text-center">Qty</span>
-                                    <span className="w-16 text-right">Price</span>
-                                    <span className="w-20 text-right">Total</span>
+                                    <span className="w-20 text-right">Price</span>
+                                    <span className="w-24 text-right">Total</span>
                                 </div>
                                 {items.map((item, i) => (
                                     <div key={i} className="item flex justify-between mb-1.5">
-                                        <span className="flex-1 truncate pr-1">{item.product_name || item.name}</span>
+                                        <span className="flex-1 truncate pr-1 text-[11px]">{item.product_name || item.name}</span>
                                         <span className="w-10 text-center">{item.quantity}</span>
-                                        <span className="w-16 text-right">{formatCurrency(item.unit_price)}</span>
-                                        <span className="w-20 text-right font-medium">{formatCurrency(item.quantity * item.unit_price)}</span>
+                                        <span className="w-20 text-right">{formatSimple(item.unit_price)}</span>
+                                        <span className="w-24 text-right font-bold">{formatSimple(item.quantity * item.unit_price)}</span>
                                     </div>
                                 ))}
                             </div>
