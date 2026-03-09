@@ -25,8 +25,15 @@ async function initializeDb() {
         process.exit(0);
 
     } catch (e) {
-        console.error('Database Initialization Failed:', e);
-        process.exit(1);
+        if (e.code === '23505' || e.message.includes('already exists')) {
+            console.log('Database already initialized (keys exist). Resuming normal startup...');
+            // Do not exit process, let the server start
+        } else if (e.code === '42P07' || e.message.includes('already exists')) {
+            console.log('Tables already exist. Resuming normal startup...');
+        } else {
+            console.error('Database Initialization Failed with critical error:', e);
+            process.exit(1);
+        }
     }
 }
 
