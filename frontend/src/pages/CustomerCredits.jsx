@@ -86,7 +86,7 @@ const CustomerCredits = () => {
                                 <button key={d.id} onClick={() => viewCustomer(d.id)}
                                     className={`w-full flex items-center justify-between px-5 py-3.5 hover:bg-slate-50 transition-colors text-left ${selectedCustomer === d.id ? 'bg-brand-50 border-l-3 border-brand-500' : ''}`}>
                                     <div>
-                                        <p className="text-sm font-medium text-slate-900">{d.first_name} {d.last_name}</p>
+                                        <p className="text-sm font-medium text-slate-900">{d.name}</p>
                                         <p className="text-xs text-slate-500">{d.phone || 'No phone'}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ const CustomerCredits = () => {
                         <>
                             <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                                 <div>
-                                    <h2 className="font-bold text-slate-900">{customerData.customer.first_name} {customerData.customer.last_name}</h2>
+                                    <h2 className="font-bold text-slate-900">{customerData.customer.name}</h2>
                                     <p className={`text-lg font-bold mt-1 ${customerData.balance > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                                         Balance: {fmt(customerData.balance)} {customerData.balance > 0 ? '(Owes)' : customerData.balance < 0 ? '(Credit)' : '(Settled)'}
                                     </p>

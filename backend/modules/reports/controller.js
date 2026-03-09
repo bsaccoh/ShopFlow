@@ -161,9 +161,9 @@ const getSalesReport = async (req, res) => {
 
         let dateFormat;
         switch (group_by) {
-            case 'week': dateFormat = '%Y-W%u'; break;
-            case 'month': dateFormat = '%Y-%m'; break;
-            default: dateFormat = '%Y-%m-%d';
+            case 'week': dateFormat = 'IYYY-"W"IW'; break;
+            case 'month': dateFormat = 'YYYY-MM'; break;
+            default: dateFormat = 'YYYY-MM-DD';
         }
 
         // Summary totals

@@ -184,6 +184,14 @@ const processSale = async (tenantId, userId, saleData) => {
           INSERT INTO payments (tenant_id, sale_id, method, amount, reference, provider, status)
           VALUES (?, ?, ?, ?, ?, ?, ?)
         `, [tenantId, saleId, pm.method, pm.amount, pm.reference || null, pm.provider || null, pmStatus]);
+
+                if (pm.method === 'CREDIT') {
+                    if (!customer_id) throw new Error('Customer is required for credit sales');
+                    await connection.query(`
+                        INSERT INTO customer_credits (tenant_id, customer_id, sale_id, type, amount, description, recorded_by)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    `, [tenantId, customer_id, saleId, 'CREDIT', pm.amount, `Credit from sale ${saleNumber}`, userId]);
+                }
             }
         }
 
@@ -258,7 +266,7 @@ const getHistory = async (tenantId, filters) => {
 
 const getDetails = async (tenantId, saleId) => {
     const [sales] = await query(`
-    SELECT s.*, c.name as customer_name, c.phone as customer_phone, c.email as customer_email,
+    SELECT s.*, c.name as customer_name, c.phone as customer_phone, c.email as customer_email, c.address as customer_address,
            u.first_name, u.last_name, t.name as tenant_name
     FROM sales s
     LEFT JOIN customers c ON s.customer_id = c.id
