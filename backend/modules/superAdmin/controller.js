@@ -231,8 +231,11 @@ const updateTenantStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { is_active } = req.body;
-        await query('UPDATE tenants SET is_active = ? WHERE id = ?', [is_active ? true : false, id]);
-        return sendSuccess(res, `Tenant ${is_active ? 'activated' : 'deactivated'} successfully`);
+        // If activating, clear suspension. If deactivating, set true suspension.
+        const isSuspended = is_active ? false : true;
+
+        await query('UPDATE tenants SET is_active = ?, is_suspended = ? WHERE id = ?', [is_active ? true : false, isSuspended, id]);
+        return sendSuccess(res, `Tenant ${is_active ? 'activated' : 'suspended'} successfully`);
     } catch (error) {
         return sendError(res, 'Failed to update tenant status', error.message, 500);
     }

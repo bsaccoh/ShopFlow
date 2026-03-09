@@ -101,7 +101,7 @@ const createNewTenant = async (tenantData) => {
         });
 
         const [tenantResult] = await connection.query(
-            'INSERT INTO tenants (name, slug, email, phone, settings) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO tenants (name, slug, email, phone, settings, is_active, is_suspended) VALUES (?, ?, ?, ?, ?, false, false)',
             [tenantData.tenantName, slug, tenantData.email, tenantData.phone || null, settings]
         );
         const tenantId = tenantResult.insertId;

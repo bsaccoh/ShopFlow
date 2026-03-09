@@ -89,18 +89,25 @@ const Tenants = () => {
         {
             header: 'Status',
             render: (row) => {
-                const isActive = row.is_active?.data ? row.is_active.data[0] === 1 : row.is_active === 1;
-                return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                        {isActive ? 'Active' : 'Suspended'}
-                    </span>
-                );
+                const isActive = Boolean(row.is_active);
+                const isSuspended = Boolean(row.is_suspended);
+
+                if (isActive) {
+                    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Active</span>;
+                } else if (!isActive && !isSuspended) {
+                    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pending</span>;
+                } else {
+                    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Suspended</span>;
+                }
             }
         },
         {
             header: 'Actions',
             render: (row) => {
-                const isActive = row.is_active?.data ? row.is_active.data[0] === 1 : row.is_active === 1;
+                const isActive = Boolean(row.is_active);
+                const isSuspended = Boolean(row.is_suspended);
+                const isPending = !isActive && !isSuspended;
+
                 return (
                     <div className="flex justify-end gap-1.5">
                         <button onClick={() => handleView(row.id)}
@@ -115,6 +122,11 @@ const Tenants = () => {
                             <button onClick={() => handleUpdateStatus(row.id, true)}
                                 className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors">
                                 <XCircle className="w-3.5 h-3.5" /> Suspend
+                            </button>
+                        ) : isPending ? (
+                            <button onClick={() => handleUpdateStatus(row.id, false)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-md transition-colors border border-amber-200">
+                                <CheckCircle className="w-3.5 h-3.5" /> Approve
                             </button>
                         ) : (
                             <button onClick={() => handleUpdateStatus(row.id, false)}
@@ -192,9 +204,13 @@ const Tenants = () => {
                                     </div>
                                     <div>
                                         <p className="text-slate-500 text-xs uppercase tracking-wider mb-1">Status</p>
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${viewTenant.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                                            {viewTenant.is_active ? 'Active' : 'Suspended'}
-                                        </span>
+                                        {Boolean(viewTenant.is_active) ? (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Active</span>
+                                        ) : !Boolean(viewTenant.is_active) && !Boolean(viewTenant.is_suspended) ? (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pending</span>
+                                        ) : (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Suspended</span>
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-slate-500 text-xs uppercase tracking-wider mb-1">Country</p>
