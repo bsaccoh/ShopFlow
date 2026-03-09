@@ -155,6 +155,12 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                                     <span className="text-slate-500">Cashier:</span>
                                     <span>{sale.cashier_name || sale.user_name || 'Staff'}</span>
                                 </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Status:</span>
+                                    <span className={`font-bold ${sale.payment_status === 'CREDIT' || sale.payment_status === 'PARTIAL_CREDIT' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                        {sale.payment_status || 'PAID'}
+                                    </span>
+                                </div>
                                 {sale.customer_name && (
                                     <div className="bg-slate-50 border border-slate-200 rounded-md p-2 mt-2">
                                         <div className="text-[9px] uppercase font-bold text-slate-400">Customer</div>
@@ -201,10 +207,22 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                                         <span>{formatCurrency(tax)}</span>
                                     </div>
                                 )}
-                                <div className="grand-total flex justify-between text-sm font-bold pt-2 border-t border-slate-200">
+                                <div className="grand-total flex justify-between text-base font-bold pt-2 border-t border-slate-200">
                                     <span>TOTAL:</span>
                                     <span>{formatCurrency(total)}</span>
                                 </div>
+                                {sale.payment_status && (sale.payment_status === 'CREDIT' || sale.payment_status === 'PARTIAL_CREDIT') && (
+                                    <>
+                                        <div className="flex justify-between text-[11px] pt-1">
+                                            <span className="text-slate-500">Amount Paid:</span>
+                                            <span className="font-bold text-emerald-600">{formatCurrency(sale.paid_amount || 0)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-[11px] pt-0.5">
+                                            <span className="text-slate-500 font-bold">BALANCE DUE:</span>
+                                            <span className="font-bold text-rose-600">{formatCurrency(total - (sale.paid_amount || 0))}</span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Payment Info */}

@@ -141,6 +141,18 @@ const SaleDetailsModal = ({ isOpen, onClose, saleId }) => {
                                         <span>TOTAL</span>
                                         <span>LE {parseFloat(saleDetails.sale.total_amount).toLocaleString()}</span>
                                     </div>
+                                    {saleDetails.sale.payment_status && (saleDetails.sale.payment_status === 'CREDIT' || saleDetails.sale.payment_status === 'PARTIAL_CREDIT') && (
+                                        <div className="mt-3 space-y-1">
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-slate-500">Amount Paid</span>
+                                                <span className="font-bold text-emerald-600">LE {parseFloat(saleDetails.sale.paid_amount || 0).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-slate-500 font-bold">BALANCE DUE</span>
+                                                <span className="font-bold text-rose-600">LE {(parseFloat(saleDetails.sale.total_amount) - parseFloat(saleDetails.sale.paid_amount || 0)).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="p-4 bg-slate-50 rounded-lg space-y-2 text-sm text-slate-600 border border-slate-100">

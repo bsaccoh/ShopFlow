@@ -23,6 +23,7 @@ const POS = () => {
     const [showCheckout, setShowCheckout] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('CASH');
     const [amountTendered, setAmountTendered] = useState('');
+    const [downPayment, setDownPayment] = useState('');
     const [processingPayment, setProcessingPayment] = useState(false);
 
     const [showReceipt, setShowReceipt] = useState(false);
@@ -182,6 +183,7 @@ const POS = () => {
         if (cart.length === 0) return;
         setPaymentMethod('CASH');
         setAmountTendered('');
+        setDownPayment('');
         setShowCheckout(true);
     };
 
@@ -199,10 +201,18 @@ const POS = () => {
 
         setProcessingPayment(true);
         try {
+            const paymentMethods = [];
+            if (paymentMethod === 'CREDIT' && parseFloat(downPayment || 0) > 0) {
+                paymentMethods.push({ method: 'CASH', amount: parseFloat(downPayment) });
+                paymentMethods.push({ method: paymentMethod, amount: subtotal - parseFloat(downPayment) });
+            } else {
+                paymentMethods.push({ method: paymentMethod, amount: paymentAmount });
+            }
+
             const payload = {
                 items: cart.map(i => ({ product_id: i.product_id, quantity: i.quantity, discount_type: 'NONE', discount_value: 0 })),
                 customer_id: selectedCustomer?.id || null,
-                payment_methods: [{ method: paymentMethod, amount: paymentAmount }],
+                payment_methods: paymentMethods,
                 status: 'COMPLETED'
             };
 
@@ -218,7 +228,7 @@ const POS = () => {
                         quantity: i.quantity,
                         unit_price: i.unit_price
                     })),
-                    payments: [{ method: paymentMethod, amount: paymentAmount }],
+                    payments: paymentMethods,
                     customer_id: selectedCustomer?.id,
                     customer_name: selectedCustomer?.name,
                     customer_phone: selectedCustomer?.phone,
@@ -559,16 +569,43 @@ const POS = () => {
                                 )}
 
                                 {paymentMethod === 'CREDIT' && (
-                                    <div className="text-center animate-in fade-in slide-in-from-bottom-2">
-                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 border ${selectedCustomer ? 'bg-amber-100 border-amber-200' : 'bg-rose-100 border-rose-200'}`}>
-                                            <Wallet className={`w-6 h-6 ${selectedCustomer ? 'text-amber-600' : 'text-rose-600'}`} />
+                                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                                        <div className="text-center">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 border ${selectedCustomer ? 'bg-amber-100 border-amber-200' : 'bg-rose-100 border-rose-200'}`}>
+                                                <Wallet className={`w-6 h-6 ${selectedCustomer ? 'text-amber-600' : 'text-rose-600'}`} />
+                                            </div>
+                                            <p className="text-slate-700 font-medium">Issue order as Customer Credit</p>
+                                            <p className={`text-sm mt-1 font-semibold ${selectedCustomer ? 'text-emerald-600' : 'text-rose-600 pulse'}`}>
+                                                {selectedCustomer
+                                                    ? `Customer: ${selectedCustomer.name}`
+                                                    : '⚠️ Please select a customer first'}
+                                            </p>
                                         </div>
-                                        <p className="text-slate-700 font-medium">Issue order as Customer Credit</p>
-                                        <p className={`text-sm mt-1 font-semibold ${selectedCustomer ? 'text-emerald-600' : 'text-rose-600 pulse'}`}>
-                                            {selectedCustomer
-                                                ? `Customer: ${selectedCustomer.name}`
-                                                : '⚠️ Please select a customer first'}
-                                        </p>
+
+                                        {selectedCustomer && (
+                                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                                <div className="flex justify-between items-center px-1">
+                                                    <span className="text-xs font-bold text-slate-500 uppercase">Down Payment</span>
+                                                    <span className="text-[10px] text-slate-400">Optional</span>
+                                                </div>
+                                                <div className="relative">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">LE</span>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full px-4 py-3 pl-12 border border-slate-200 rounded-lg bg-white text-lg font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                                                        value={downPayment}
+                                                        onChange={(e) => setDownPayment(e.target.value)}
+                                                        placeholder="0.00"
+                                                    />
+                                                </div>
+                                                <div className="flex justify-between items-center text-sm px-1">
+                                                    <span className="text-slate-500">Remaining Credit:</span>
+                                                    <span className="font-bold text-rose-600">
+                                                        LE {(subtotal - parseFloat(downPayment || 0)).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
