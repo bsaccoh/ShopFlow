@@ -95,7 +95,7 @@ const adjust = async (tenantId, userId, data) => {
 
         // 3. Update inventory
         await connection.query(
-            'UPDATE inventory SET quantity = ?, last_restocked_at = IF(?="ADD", NOW(), last_restocked_at) WHERE id = ?',
+            'UPDATE inventory SET quantity = ?, last_restocked_at = CASE WHEN ? = \'ADD\' THEN CURRENT_TIMESTAMP ELSE last_restocked_at END WHERE id = ?',
             [newQty, data.adjustment_type, invId]
         );
 

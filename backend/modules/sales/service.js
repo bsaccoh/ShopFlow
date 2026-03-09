@@ -137,7 +137,7 @@ const processSale = async (tenantId, userId, saleData) => {
         const [saleResult] = await connection.query(`
       INSERT INTO sales 
       (tenant_id, customer_id, user_id, branch_id, sale_number, subtotal, tax_amount, discount_amount, total_amount, paid_amount, change_amount, payment_status, status, notes, completed_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, IF(?='COMPLETED', NOW(), NULL))
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'COMPLETED' THEN CURRENT_TIMESTAMP ELSE NULL END)
     `, [
             tenantId, customer_id || null, userId, branch_id || null, saleNumber, subtotal, totalTax, totalDiscount, totalAmount, paidAmount, changeAmount, paymentStatus, status, notes || null, status
         ]);
@@ -214,7 +214,7 @@ const getHistory = async (tenantId, filters) => {
     SELECT s.id, s.sale_number, s.total_amount, s.payment_status, s.status, s.created_at,
            c.name as customer_name, u.first_name as cashier_first, u.last_name as cashier_last,
            (SELECT COALESCE(SUM(quantity), 0) FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as total_items,
-           (SELECT GROUP_CONCAT(CONCAT(product_name, ' (x', quantity, ')') SEPARATOR ', ') FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as items_summary
+           (SELECT STRING_AGG(product_name || ' (x' || quantity || ')', ', ') FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as items_summary
     FROM sales s
     LEFT JOIN customers c ON s.customer_id = c.id
     LEFT JOIN users u ON s.user_id = u.id
