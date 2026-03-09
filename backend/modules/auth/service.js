@@ -109,22 +109,22 @@ const createNewTenant = async (tenantData) => {
         // 4. Create default roles for the tenant
         const [roleResult] = await connection.query(
             'INSERT INTO roles (tenant_id, name, slug, description, is_system) VALUES (?, ?, ?, ?, ?)',
-            [tenantId, 'Administrator', 'admin', 'Full access', 1]
+            [tenantId, 'Administrator', 'admin', 'Full access', true]
         );
         const adminRoleId = roleResult.insertId;
 
         await connection.query(
             'INSERT INTO roles (tenant_id, name, slug, description, is_system) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
             [
-                tenantId, 'Manager', 'manager', 'Store Manager', 1,
-                tenantId, 'Cashier', 'cashier', 'POS operator', 1,
-                tenantId, 'Inventory Manager', 'inventory_manager', 'Products, inventory & purchasing', 1
+                tenantId, 'Manager', 'manager', 'Store Manager', true,
+                tenantId, 'Cashier', 'cashier', 'POS operator', true,
+                tenantId, 'Inventory Manager', 'inventory_manager', 'Products, inventory & purchasing', true
             ]
         );
 
         // 5. Create default "Main" branch
         const [branchResult] = await connection.query(
-            'INSERT INTO branches (tenant_id, name, is_main, is_active) VALUES (?, ?, 1, 1)',
+            'INSERT INTO branches (tenant_id, name, is_main, is_active) VALUES (?, ?, true, true)',
             [tenantId, 'Main Store']
         );
         const mainBranchId = branchResult.insertId;
@@ -154,7 +154,7 @@ const createNewTenant = async (tenantData) => {
         // 7. Configure payment provider if specified
         if (tenantData.paymentProvider) {
             await connection.query(
-                'INSERT INTO tenant_payment_configs (tenant_id, provider, is_active) VALUES (?, ?, 1)',
+                'INSERT INTO tenant_payment_configs (tenant_id, provider, is_active) VALUES (?, ?, true)',
                 [tenantId, tenantData.paymentProvider]
             );
         }
