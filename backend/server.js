@@ -49,6 +49,10 @@ app.use(`${API_PREFIX}`, apiRoutes);
 const setupSwagger = require('./config/swagger');
 setupSwagger(app);
 
+// Database Sync (Add missing columns automatically)
+const { syncDatabase } = require('./database/sync');
+syncDatabase();
+
 // Start Background Jobs
 const { startReconciliationJob } = require('./modules/payments/reconciliation.job');
 startReconciliationJob();
