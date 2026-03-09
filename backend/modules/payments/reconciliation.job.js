@@ -30,8 +30,8 @@ const startReconciliationJob = () => {
             const [pendingTxns] = await query(`
         SELECT * FROM mobile_money_transactions
         WHERE status = 'PENDING' 
-        AND created_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)
-        AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND created_at < NOW() - INTERVAL '5 minutes'
+        AND created_at > NOW() - INTERVAL '24 hours'
       `);
 
             if (pendingTxns.length === 0) {
