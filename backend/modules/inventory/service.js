@@ -6,7 +6,7 @@ const getLevels = async (tenantId, filters) => {
            p.name as product_name, p.sku, p.barcode, p.min_stock_level
     FROM inventory i
     JOIN products p ON i.product_id = p.id
-    WHERE i.tenant_id = ? AND i.warehouse = ? AND p.is_active = 1
+    WHERE i.tenant_id = ? AND i.warehouse = ? AND p.is_active = true
   `;
     const params = [tenantId, filters.warehouse];
 

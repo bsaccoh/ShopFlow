@@ -11,7 +11,7 @@ const getAll = async (tenantId, filters = {}) => {
     LEFT JOIN categories c ON p.category_id = c.id
     LEFT JOIN inventory iw ON p.id = iw.product_id AND iw.tenant_id = p.tenant_id AND iw.warehouse = ?
     LEFT JOIN inventory im ON p.id = im.product_id AND im.tenant_id = p.tenant_id AND im.warehouse = 'main'
-    WHERE p.tenant_id = ? AND p.is_active = 1
+    WHERE p.tenant_id = ? AND p.is_active = true
   `;
     const params = [warehouse, tenantId];
 
@@ -58,7 +58,7 @@ const getByBarcode = async (tenantId, barcode, warehouse = 'main') => {
     FROM products p
     LEFT JOIN inventory iw ON p.id = iw.product_id AND iw.tenant_id = p.tenant_id AND iw.warehouse = ?
     LEFT JOIN inventory im ON p.id = im.product_id AND im.tenant_id = p.tenant_id AND im.warehouse = 'main'
-    WHERE p.tenant_id = ? AND p.barcode = ? AND p.is_active = 1
+    WHERE p.tenant_id = ? AND p.barcode = ? AND p.is_active = true
   `, [warehouse, tenantId, barcode]);
     return rows[0] || null;
 };
@@ -160,7 +160,7 @@ const update = async (tenantId, id, data) => {
 };
 
 const remove = async (tenantId, id) => {
-    const result = await query('UPDATE products SET is_active = 0 WHERE tenant_id = ? AND id = ?', [tenantId, id]);
+    const result = await query('UPDATE products SET is_active = false WHERE tenant_id = ? AND id = ?', [tenantId, id]);
     return result.affectedRows > 0;
 };
 

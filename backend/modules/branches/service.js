@@ -32,7 +32,7 @@ const create = async (data) => {
 const update = async (id, data) => {
     await withTransaction(async (conn) => {
         if (data.is_main) {
-            await conn.query('UPDATE branches SET is_main = 0 WHERE tenant_id = ? AND id != ?', [data.tenantId, id]);
+            await conn.query('UPDATE branches SET is_main = false WHERE tenant_id = ? AND id != ?', [data.tenantId, id]);
         }
 
         const updates = [];

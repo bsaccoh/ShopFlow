@@ -68,7 +68,7 @@ const validateCoupon = async (req, res) => {
         if (!code) return sendError(res, 'Coupon code is required', null, 400);
 
         const [discounts] = await query(`
-            SELECT * FROM discounts WHERE tenant_id = ? AND code = ? AND is_active = 1
+            SELECT * FROM discounts WHERE tenant_id = ? AND code = ? AND is_active = true
         `, [req.tenantId, code]);
 
         if (discounts.length === 0) return sendError(res, 'Invalid coupon code', null, 404);

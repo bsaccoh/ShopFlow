@@ -19,13 +19,13 @@ const processSale = async (tenantId, userId, saleData) => {
             if (branchRows.length > 0) {
                 preferredWarehouse = branchRows[0].name;
             } else {
-                // Fallback to main branch for tenant
-                const [mainBranchRows] = await connection.query('SELECT name FROM branches WHERE tenant_id = ? AND is_main = 1 LIMIT 1', [tenantId]);
+                // Fallback            if (!branchId) {
+                const [mainBranchRows] = await connection.query('SELECT name FROM branches WHERE tenant_id = ? AND is_main = true LIMIT 1', [tenantId]);
                 if (mainBranchRows.length > 0) preferredWarehouse = mainBranchRows[0].name;
             }
         } else {
-            // Fallback to main branch for tenant
-            const [mainBranchRows] = await connection.query('SELECT name FROM branches WHERE tenant_id = ? AND is_main = 1 LIMIT 1', [tenantId]);
+            // Fallback        if (!branchName) {
+            const [mainBranchRows] = await connection.query('SELECT name FROM branches WHERE tenant_id = ? AND is_main = true LIMIT 1', [tenantId]);
             if (mainBranchRows.length > 0) preferredWarehouse = mainBranchRows[0].name;
         }
         // 1. Validate constraints & calculate totals
@@ -213,7 +213,7 @@ const getHistory = async (tenantId, filters) => {
     let sql = `
     SELECT s.id, s.sale_number, s.total_amount, s.payment_status, s.status, s.created_at,
            c.name as customer_name, u.first_name as cashier_first, u.last_name as cashier_last,
-           (SELECT IFNULL(SUM(quantity), 0) FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as total_items,
+           (SELECT COALESCE(SUM(quantity), 0) FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as total_items,
            (SELECT GROUP_CONCAT(CONCAT(product_name, ' (x', quantity, ')') SEPARATOR ', ') FROM sale_items WHERE sale_id = s.id AND tenant_id = s.tenant_id) as items_summary
     FROM sales s
     LEFT JOIN customers c ON s.customer_id = c.id
@@ -287,7 +287,7 @@ const getDetails = async (tenantId, saleId) => {
 const voidTransaction = async (tenantId, saleId, userId, reason) => {
     return await withTransaction(async (connection) => {
         // 1. Mark sale as VOIDED
-        await connection.query('UPDATE sales SET status = "VOIDED", notes = CONCAT(IFNULL(notes, ""), " | Voided: ", ?) WHERE id = ? AND tenant_id = ?', [reason, saleId, tenantId]);
+        await connection.query("UPDATE sales SET status = 'VOIDED', notes = CONCAT(COALESCE(notes, ''), ' | Voided: ', CAST(? AS TEXT)) WHERE id = ? AND tenant_id = ?", [reason, saleId, tenantId]);
 
         // 2. Reverse Inventory
         const [items] = await connection.query('SELECT product_id, quantity FROM sale_items WHERE sale_id = ?', [saleId]);

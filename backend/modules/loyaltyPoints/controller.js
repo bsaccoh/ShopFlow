@@ -16,7 +16,7 @@ const getSummary = async (req, res) => {
                    - COALESCE(SUM(CASE WHEN lp.type = 'EXPIRED' THEN lp.points ELSE 0 END), 0) as balance
             FROM customers c
             LEFT JOIN loyalty_points lp ON c.id = lp.customer_id AND lp.tenant_id = ?
-            WHERE c.tenant_id = ? AND c.is_active = 1
+            WHERE c.tenant_id = ? AND c.is_active = true
             GROUP BY c.id, c.name, c.email, c.phone
             ORDER BY balance DESC
         `, [req.tenantId, req.tenantId]);

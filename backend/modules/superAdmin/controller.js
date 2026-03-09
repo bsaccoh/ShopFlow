@@ -5,7 +5,7 @@ const { sendSuccess, sendError } = require('../../utils/response');
 const getDashboardStats = async (req, res) => {
     try {
         const [[{ count: tenantCount }]] = await query('SELECT COUNT(*) as count FROM tenants');
-        const [[{ count: activeTenants }]] = await query('SELECT COUNT(*) as count FROM tenants WHERE is_active = 1');
+        const [[{ count: activeTenants }]] = await query('SELECT COUNT(*) as count FROM tenants WHERE is_active = true');
         const [[{ revenue: totalRevenue }]] = await query(`
             SELECT COALESCE(SUM(amount), 0) as revenue
             FROM subscriptions
@@ -26,7 +26,7 @@ const getDashboardStats = async (req, res) => {
         const [[previousMonthTenants]] = await query(`
             SELECT COUNT(*) as value
             FROM tenants
-            WHERE TO_CHAR(created_at, 'YYYY-MM') = DATE_FORMAT(CURRENT_DATE - INTERVAL '1 months', '%Y-%m')
+            WHERE TO_CHAR(created_at, 'YYYY-MM') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'YYYY-MM')
         `);
 
         const [[currentMonthRevenue]] = await query(`
@@ -39,7 +39,7 @@ const getDashboardStats = async (req, res) => {
             SELECT COALESCE(SUM(amount), 0) as value
             FROM subscriptions
             WHERE status IN ('ACTIVE', 'TRIAL', 'PAST_DUE')
-              AND TO_CHAR(created_at, 'YYYY-MM') = DATE_FORMAT(CURRENT_DATE - INTERVAL '1 months', '%Y-%m')
+              AND TO_CHAR(created_at, 'YYYY-MM') = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'YYYY-MM')
         `);
 
         const [monthlyGrowthRows] = await query(`
@@ -231,7 +231,7 @@ const updateTenantStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { is_active } = req.body;
-        await query('UPDATE tenants SET is_active = ? WHERE id = ?', [is_active ? 1 : 0, id]);
+        await query('UPDATE tenants SET is_active = ? WHERE id = ?', [is_active ? true : false, id]);
         return sendSuccess(res, `Tenant ${is_active ? 'activated' : 'deactivated'} successfully`);
     } catch (error) {
         return sendError(res, 'Failed to update tenant status', error.message, 500);
@@ -319,8 +319,7 @@ const updatePlan = async (req, res) => {
 const deletePlan = async (req, res) => {
     try {
         const { id } = req.params;
-        // Soft-delete by deactivating
-        await query('UPDATE subscription_plans SET is_active = 0 WHERE id = ?', [id]);
+        await query('UPDATE subscription_plans SET is_active = false WHERE id = ?', [id]);
         return sendSuccess(res, 'Plan deactivated successfully');
     } catch (error) {
         return sendError(res, 'Failed to delete plan', error.message, 500);
@@ -333,7 +332,7 @@ const getAdminUsers = async (req, res) => {
         const [admins] = await query('SELECT id, email, first_name, last_name, is_active, last_login, created_at FROM super_admins ORDER BY created_at DESC');
         const formatted = admins.map(a => ({
             ...a,
-            is_active: Buffer.isBuffer(a.is_active) ? a.is_active[0] === 1 : a.is_active === 1
+            is_active: Boolean(a.is_active)
         }));
         return sendSuccess(res, 'Admin users retrieved', formatted);
     } catch (error) {
@@ -373,7 +372,7 @@ const updateAdminStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { is_active } = req.body;
-        await query('UPDATE super_admins SET is_active = ? WHERE id = ?', [is_active ? 1 : 0, id]);
+        await query('UPDATE super_admins SET is_active = ? WHERE id = ?', [is_active ? true : false, id]);
         return sendSuccess(res, `Admin user ${is_active ? 'activated' : 'deactivated'}`);
     } catch (error) {
         return sendError(res, 'Failed to update admin status', error.message, 500);

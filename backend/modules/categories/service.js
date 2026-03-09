@@ -1,7 +1,7 @@
 const { query } = require('../../database/connection');
 
 const getAll = async (tenantId) => {
-    const [categories] = await query('SELECT * FROM categories WHERE (tenant_id = ? OR tenant_id IS NULL) AND is_active = 1 ORDER BY name ASC', [tenantId]);
+    const [categories] = await query('SELECT * FROM categories WHERE (tenant_id = ? OR tenant_id IS NULL) AND is_active = true ORDER BY name ASC', [tenantId]);
     return categories;
 };
 
@@ -49,7 +49,7 @@ const update = async (tenantId, id, updateData) => {
 
 const remove = async (tenantId, id) => {
     // Soft delete or real delete. Prefer soft delete to maintain referential integrity in products
-    const [result] = await query('UPDATE categories SET is_active = 0 WHERE (tenant_id = ? OR tenant_id IS NULL) AND id = ?', [tenantId, id]);
+    const [result] = await query('UPDATE categories SET is_active = false WHERE (tenant_id = ? OR tenant_id IS NULL) AND id = ?', [tenantId, id]);
     return result.affectedRows > 0;
 };
 

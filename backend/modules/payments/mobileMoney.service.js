@@ -14,17 +14,21 @@ const simulateProviderPush = async (provider, phoneNumber, amount, transactionId
     };
 };
 
+const getTenantProviderConfig = async (tenantId, provider) => {
+    const [rows] = await query(`
+    SELECT * FROM tenant_payment_configs WHERE tenant_id = ? AND provider = ? AND is_active = true
+  `, [tenantId, provider]);
+    return rows[0] || null;
+};
+
 const initiatePayment = async (tenantId, saleId, provider, phoneNumber, amount) => {
     // 1. Get Tenant's API keys for this provider
-    const [configRows] = await query(`
-    SELECT * FROM tenant_payment_configs WHERE tenant_id = ? AND provider = ? AND is_active = 1
-  `, [tenantId, provider]);
+    const config = await getTenantProviderConfig(tenantId, provider);
 
-    if (configRows.length === 0) {
+    if (!config) {
         throw new Error(`${provider} is not configured or activated for this tenant`);
     }
 
-    const config = configRows[0];
     const apiKey = decrypt(config.api_key);
     // Business number, etc., would also be used
 
@@ -130,12 +134,12 @@ const saveConfig = async (tenantId, provider, data) => {
     await query(`
     INSERT INTO tenant_payment_configs (tenant_id, provider, api_key, secret_key, webhook_secret, business_number, is_active)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE
-      api_key = IFNULL(VALUES(api_key), api_key),
-      secret_key = IFNULL(VALUES(secret_key), secret_key),
-      webhook_secret = IFNULL(VALUES(webhook_secret), webhook_secret),
-      business_number = IFNULL(VALUES(business_number), business_number),
-      is_active = VALUES(is_active)
+    ON CONFLICT (tenant_id, provider) DO UPDATE SET
+      api_key = COALESCE(EXCLUDED.api_key, tenant_payment_configs.api_key),
+      secret_key = COALESCE(EXCLUDED.secret_key, tenant_payment_configs.secret_key),
+      webhook_secret = COALESCE(EXCLUDED.webhook_secret, tenant_payment_configs.webhook_secret),
+      business_number = COALESCE(EXCLUDED.business_number, tenant_payment_configs.business_number),
+      is_active = EXCLUDED.is_active
   `, [tenantId, provider, encApiKey, encSecret, webSecret, data.business_number || null, data.is_active !== undefined ? data.is_active : 1]);
 
     return true;

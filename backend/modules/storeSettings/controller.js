@@ -21,7 +21,7 @@ const saveSettings = async (req, res) => {
             await query(`
                 INSERT INTO store_settings (tenant_id, setting_key, setting_value)
                 VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+                ON CONFLICT (tenant_id, setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value
             `, [req.tenantId, key, value || null]);
         }
 
