@@ -237,7 +237,8 @@ const POS = () => {
                 posApi.getProducts('').then(r => { if (r.success) setProducts(r.data); });
             }
         } catch (err) {
-            alert(err.message || 'Checkout failed');
+            console.error('Checkout error:', err);
+            alert(err.error || err.message || 'Checkout failed');
         } finally {
             setProcessingPayment(false);
         }
@@ -559,11 +560,15 @@ const POS = () => {
 
                                 {paymentMethod === 'CREDIT' && (
                                     <div className="text-center animate-in fade-in slide-in-from-bottom-2">
-                                        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 border border-amber-200">
-                                            <Wallet className="w-6 h-6 text-amber-600" />
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 border ${selectedCustomer ? 'bg-amber-100 border-amber-200' : 'bg-rose-100 border-rose-200'}`}>
+                                            <Wallet className={`w-6 h-6 ${selectedCustomer ? 'text-amber-600' : 'text-rose-600'}`} />
                                         </div>
                                         <p className="text-slate-700 font-medium">Issue order as Customer Credit</p>
-                                        <p className="text-sm text-slate-500 mt-1">Customer must be recorded on receipt</p>
+                                        <p className={`text-sm mt-1 font-semibold ${selectedCustomer ? 'text-emerald-600' : 'text-rose-600 pulse'}`}>
+                                            {selectedCustomer
+                                                ? `Customer: ${selectedCustomer.name}`
+                                                : '⚠️ Please select a customer first'}
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -580,7 +585,9 @@ const POS = () => {
                             </button>
                             <button
                                 onClick={completeSale}
-                                disabled={processingPayment || (paymentMethod === 'CASH' && amountTendered && parseFloat(amountTendered) < subtotal)}
+                                disabled={processingPayment ||
+                                    (paymentMethod === 'CASH' && amountTendered && parseFloat(amountTendered) < subtotal) ||
+                                    (paymentMethod === 'CREDIT' && !selectedCustomer)}
                                 className="flex-[2] px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-70"
                             >
                                 {processingPayment ? (
