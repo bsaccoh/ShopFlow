@@ -2,16 +2,16 @@ const { query, withTransaction } = require('../../database/connection');
 
 const getLevels = async (tenantId, filters) => {
     let sql = `
-    SELECT i.id, i.product_id, i.warehouse, i.quantity, i.last_restocked_at,
+    SELECT i.id, p.id as product_id, i.warehouse, COALESCE(i.quantity, 0) as quantity, i.last_restocked_at,
            p.name as product_name, p.sku, p.barcode, p.min_stock_level
-    FROM inventory i
-    JOIN products p ON i.product_id = p.id
-    WHERE i.tenant_id = ? AND i.warehouse = ? AND p.is_active = true
+    FROM products p
+    LEFT JOIN inventory i ON p.id = i.product_id AND i.warehouse = ?
+    WHERE p.tenant_id = ? AND p.is_active = true
   `;
-    const params = [tenantId, filters.warehouse];
+    const params = [filters.warehouse, tenantId];
 
     if (filters.search) {
-        sql += ' AND (p.name LIKE ? OR p.barcode = ? OR p.sku = ?)';
+        sql += ' AND (p.name ILIKE ? OR p.barcode = ? OR p.sku = ?)';
         params.push(`%${filters.search}%`, filters.search, filters.search);
     }
 

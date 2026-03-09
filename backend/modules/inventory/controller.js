@@ -10,7 +10,8 @@ const getInventoryLevels = async (req, res) => {
         };
 
         // Check if tenant has multi-warehouse feature
-        if (filters.warehouse !== 'main' && !req.subscriptionFeatures?.multiWarehouse) {
+        const userBranch = req.user.branchName || 'main';
+        if (filters.warehouse !== userBranch && !req.subscriptionFeatures?.multiWarehouse) {
             return sendError(res, 'Multi-warehouse feature is not available on your current plan', null, 403);
         }
 
@@ -48,7 +49,7 @@ const adjustStock = async (req, res) => {
             return sendError(res, 'Product ID, adjustment type (ADD/REMOVE/SET), and quantity are required', null, 400);
         }
 
-        if (warehouse !== 'main' && !req.subscriptionFeatures?.multiWarehouse) {
+        if (warehouse !== defaultWarehouse && !req.subscriptionFeatures?.multiWarehouse) {
             return sendError(res, 'Multi-warehouse feature is not available on your current plan', null, 403);
         }
 
