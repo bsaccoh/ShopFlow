@@ -424,7 +424,7 @@ const POS = () => {
                                     </div>
                                     <div className="text-right flex flex-col items-end gap-1 shrink-0">
                                         <span className="font-bold text-slate-900 text-sm">
-                                            {formatLe(item.quantity * toMoneyNumber(item.unit_price))}
+                                            {formatLE(item.quantity * toMoneyNumber(item.unit_price))}
                                         </span>
                                         <button onClick={() => removeFromCart(item.product_id)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-0.5">
                                             <X className="w-4 h-4" />
@@ -441,15 +441,15 @@ const POS = () => {
                     <div className="space-y-2 mb-4">
                         <div className="flex justify-between items-center text-sm text-slate-500">
                             <span>Subtotal</span>
-                            <span className="font-medium tabular-nums">{formatLe(subtotal)}</span>
+                            <span className="font-medium tabular-nums">{formatLE(subtotal)}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm text-slate-500 pb-2 border-b border-slate-100">
                             <span>Tax (0%)</span>
-                            <span className="font-medium tabular-nums">{formatLe(0)}</span>
+                            <span className="font-medium tabular-nums">{formatLE(0)}</span>
                         </div>
                         <div className="flex justify-between items-center text-lg font-black text-slate-900 pt-1">
                             <span>Total</span>
-                            <span className="tabular-nums">{formatLe(subtotal)}</span>
+                            <span className="tabular-nums">{formatLE(subtotal)}</span>
                         </div>
                     </div>
 
