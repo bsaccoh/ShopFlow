@@ -59,16 +59,18 @@ const addCreditRecord = async (req, res) => {
 const getDebtors = async (req, res) => {
     try {
         const [debtors] = await query(`
-            SELECT c.id, c.name, c.phone,
-                   COALESCE(SUM(CASE WHEN cc.type = 'CREDIT' THEN cc.amount ELSE 0 END), 0) as total_credit,
-                   COALESCE(SUM(CASE WHEN cc.type = 'PAYMENT' THEN cc.amount ELSE 0 END), 0) as total_payments,
-                   COALESCE(SUM(CASE WHEN cc.type = 'CREDIT' THEN cc.amount ELSE 0 END), 0) -
-                   COALESCE(SUM(CASE WHEN cc.type = 'PAYMENT' THEN cc.amount ELSE 0 END), 0) as balance
-            FROM customers c
-            LEFT JOIN customer_credits cc ON c.id = cc.customer_id AND cc.tenant_id = ?
-            WHERE c.tenant_id = ?
-            GROUP BY c.id, c.name, c.phone
-            HAVING balance > 0
+            SELECT * FROM (
+                SELECT c.id, c.name, c.phone,
+                       COALESCE(SUM(CASE WHEN cc.type = 'CREDIT' THEN cc.amount ELSE 0 END), 0) as total_credit,
+                       COALESCE(SUM(CASE WHEN cc.type = 'PAYMENT' THEN cc.amount ELSE 0 END), 0) as total_payments,
+                       COALESCE(SUM(CASE WHEN cc.type = 'CREDIT' THEN cc.amount ELSE 0 END), 0) -
+                       COALESCE(SUM(CASE WHEN cc.type = 'PAYMENT' THEN cc.amount ELSE 0 END), 0) as balance
+                FROM customers c
+                LEFT JOIN customer_credits cc ON c.id = cc.customer_id AND cc.tenant_id = ?
+                WHERE c.tenant_id = ?
+                GROUP BY c.id, c.name, c.phone
+            ) as debtor_summary
+            WHERE balance > 0
             ORDER BY balance DESC
         `, [req.tenantId, req.tenantId]);
 
