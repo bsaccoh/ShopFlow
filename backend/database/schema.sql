@@ -199,11 +199,12 @@ CREATE TABLE IF NOT EXISTS suppliers (
   id BIGSERIAL PRIMARY KEY,
   tenant_id BIGINT NOT NULL,
   name VARCHAR(255) NOT NULL,
-  contact_person VARCHAR(200) NULL,
+  contact_person VARCHAR(255) NULL,
   email VARCHAR(255) NULL,
   phone VARCHAR(50) NULL,
   address TEXT NULL,
   city VARCHAR(100) NULL,
+  notes TEXT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -390,13 +391,15 @@ CREATE TABLE IF NOT EXISTS purchase_items (
 CREATE TABLE IF NOT EXISTS returns (
   id BIGSERIAL PRIMARY KEY,
   tenant_id BIGINT NOT NULL,
-  sale_id BIGINT NOT NULL,
-  user_id BIGINT NOT NULL,
-  branch_id BIGINT NULL,
   return_number VARCHAR(50) NOT NULL,
-  total_amount DECIMAL(14,2) NOT NULL DEFAULT 0,
-  reason TEXT NULL,
+  sale_id BIGINT NOT NULL,
+  customer_id BIGINT NULL,
+  reason TEXT NOT NULL,
   status VARCHAR(50) DEFAULT 'PENDING',
+  refund_amount DECIMAL(14,2) DEFAULT 0,
+  refund_method VARCHAR(50) DEFAULT 'CASH',
+  processed_by BIGINT NULL,
+  processed_at TIMESTAMP NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
@@ -487,24 +490,6 @@ CREATE TABLE IF NOT EXISTS tenant_payment_configs (
 );
 
 
--- ========================
--- Suppliers
--- ========================
-CREATE TABLE IF NOT EXISTS suppliers (
-  id BIGSERIAL PRIMARY KEY,
-  tenant_id BIGINT NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  contact_person VARCHAR(255) NULL,
-  email VARCHAR(255) NULL,
-  phone VARCHAR(50) NULL,
-  address TEXT NULL,
-  notes TEXT NULL,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
-);
-
 
 -- ========================
 -- Purchase Orders
@@ -537,26 +522,6 @@ CREATE TABLE IF NOT EXISTS purchase_order_items (
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-
--- ========================
--- Returns / Refunds
--- ========================
-CREATE TABLE IF NOT EXISTS returns (
-  id BIGSERIAL PRIMARY KEY,
-  tenant_id BIGINT NOT NULL,
-  return_number VARCHAR(50) NOT NULL,
-  sale_id BIGINT NOT NULL,
-  customer_id BIGINT NULL,
-  reason TEXT NOT NULL,
-  status VARCHAR(50) DEFAULT 'PENDING',
-  refund_amount DECIMAL(14,2) DEFAULT 0,
-  refund_method VARCHAR(50) DEFAULT 'CASH',
-  processed_by BIGINT NULL,
-  processed_at TIMESTAMP NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
-  FOREIGN KEY (sale_id) REFERENCES sales(id)
-);
 
 
 CREATE TABLE IF NOT EXISTS return_items (
