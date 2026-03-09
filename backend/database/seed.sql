@@ -41,3 +41,13 @@ VALUES
 (1, 1, 1, 1, 'admin@demoshop.com', '$2a$10$MAgAZnIlqtZEFQx3ihncI.htYvi9.B6UTIUiJOO58dCESSOF4SMC2', 'Demo', 'Admin', TRUE),
 (2, 1, 2, 1, 'manager@demoshop.com', '$2a$10$MAgAZnIlqtZEFQx3ihncI.htYvi9.B6UTIUiJOO58dCESSOF4SMC2', 'Store', 'Manager', TRUE),
 (3, 1, 3, 1, 'cashier@demoshop.com', '$2a$10$MAgAZnIlqtZEFQx3ihncI.htYvi9.B6UTIUiJOO58dCESSOF4SMC2', 'Point', 'Cashier', TRUE);
+
+-- 7. Sync PostgreSQL Sequences
+-- Because we explicitly inserted IDs above, we must advance the sequences so new inserts don't collide
+SELECT setval('subscription_plans_id_seq', (SELECT MAX(id) FROM subscription_plans));
+SELECT setval('super_admins_id_seq', (SELECT MAX(id) FROM super_admins));
+SELECT setval('tenants_id_seq', (SELECT MAX(id) FROM tenants));
+SELECT setval('subscriptions_id_seq', (SELECT MAX(id) FROM subscriptions));
+SELECT setval('roles_id_seq', (SELECT MAX(id) FROM roles));
+SELECT setval('branches_id_seq', (SELECT MAX(id) FROM branches));
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));

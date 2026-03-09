@@ -35,6 +35,23 @@ async function initializeDb() {
             process.exit(1);
         }
     }
+
+    try {
+        console.log('Synchronizing PostgreSQL Sequences...');
+        // Always ensure sequences are synced to MAX(id) on boot
+        await pool.query(`
+            SELECT setval('subscription_plans_id_seq', COALESCE((SELECT MAX(id) FROM subscription_plans), 1));
+            SELECT setval('super_admins_id_seq', COALESCE((SELECT MAX(id) FROM super_admins), 1));
+            SELECT setval('tenants_id_seq', COALESCE((SELECT MAX(id) FROM tenants), 1));
+            SELECT setval('subscriptions_id_seq', COALESCE((SELECT MAX(id) FROM subscriptions), 1));
+            SELECT setval('roles_id_seq', COALESCE((SELECT MAX(id) FROM roles), 1));
+            SELECT setval('branches_id_seq', COALESCE((SELECT MAX(id) FROM branches), 1));
+            SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));
+        `);
+        console.log('Sequences synchronized.');
+    } catch (seqErr) {
+        console.error('Non-fatal error synchronizing sequences:', seqErr);
+    }
 }
 
 initializeDb();
