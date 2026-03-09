@@ -383,10 +383,10 @@ const POS = () => {
                             <select
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-green-500"
                                 onChange={(e) => {
-                                    const cust = customers.find(c => c.id === parseInt(e.target.value));
+                                    const cust = customers.find(c => String(c.id) === String(e.target.value));
                                     if (cust) setSelectedCustomer(cust);
                                 }}
-                                value=""
+                                defaultValue=""
                             >
                                 <option value="" disabled>Select Customer (Optional)</option>
                                 {customers.map(c => (
