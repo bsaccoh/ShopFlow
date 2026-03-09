@@ -51,7 +51,7 @@ const login = async (req, res) => {
         if (error.message === 'Invalid credentials' || error.message === 'Account inactive') {
             return sendError(res, error.message, null, 401);
         }
-        return sendError(res, 'Internal server error during login', error.message, 500);
+        return sendError(res, 'Internal server error during login: ' + error.message, error.stack, 500);
     }
 };
 
