@@ -46,10 +46,10 @@ function translateQuery(sql) {
 function formatResult(result) {
   if (result.command === 'INSERT') {
     const insertId = result.rows.length > 0 ? result.rows[0].id : null;
-    return [result.rows, { insertId, affectedRows: result.rowCount }];
+    return [{ insertId, affectedRows: result.rowCount }, null];
   }
   if (result.command === 'UPDATE' || result.command === 'DELETE') {
-    return [result.rows, { affectedRows: result.rowCount }];
+    return [{ affectedRows: result.rowCount }, null];
   }
   // SELECT
   return [result.rows, result.fields];
