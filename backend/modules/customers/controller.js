@@ -15,7 +15,7 @@ const getCustomers = async (req, res) => {
 
         const formattedCustomers = customers.map(cust => ({
             ...cust,
-            is_active: Buffer.isBuffer(cust.is_active) ? cust.is_active[0] === 1 : (cust.is_active == 1)
+            is_active: !!cust.is_active
         }));
 
         return sendSuccess(res, 'Customers retrieved', formattedCustomers);
@@ -35,16 +35,18 @@ const createCustomer = async (req, res) => {
 
         const [result] = await query(`
             INSERT INTO customers (tenant_id, name, email, phone, address, is_active)
-            VALUES (?, ?, ?, ?, ?, 1)
+            VALUES (?, ?, ?, ?, ?, true)
         `, [tenantId, name, email || null, phone || null, address || null]);
 
+        const insertId = result.insertId;
+
         const newCustomer = {
-            id: result.insertId,
-            name, email, phone, address, loyalty_points: 0, total_spent: 0, is_active: 1
+            id: insertId,
+            name, email, phone, address, loyalty_points: 0, total_spent: 0, is_active: true
         };
 
         if (req.audit) {
-            await req.audit('CUSTOMER_CREATE', result.insertId, null, newCustomer);
+            await req.audit('CUSTOMER_CREATE', insertId, null, newCustomer);
         }
 
         return sendSuccess(res, 'Customer created successfully', newCustomer, 201);

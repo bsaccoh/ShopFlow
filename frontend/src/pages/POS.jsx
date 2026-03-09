@@ -221,6 +221,8 @@ const POS = () => {
                     payments: [{ method: paymentMethod, amount: paymentAmount }],
                     customer_id: selectedCustomer?.id,
                     customer_name: selectedCustomer?.name,
+                    customer_phone: selectedCustomer?.phone,
+                    customer_address: selectedCustomer?.address,
                     created_at: new Date().toISOString(),
                     amount_tendered: paymentMethod === 'CASH' ? parseFloat(amountTendered) : paymentAmount,
                     change_due: paymentMethod === 'CASH' ? parseFloat(amountTendered) - subtotal : 0

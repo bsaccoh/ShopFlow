@@ -159,6 +159,8 @@ const ReceiptModal = ({ isOpen, onClose, sale, storeName = 'ShopFlow Store' }) =
                                     <div className="bg-slate-50 border border-slate-200 rounded-md p-2 mt-2">
                                         <div className="text-[9px] uppercase font-bold text-slate-400">Customer</div>
                                         <div className="text-sm font-bold text-slate-900">{sale.customer_name}</div>
+                                        {sale.customer_phone && <div className="text-[10px] text-slate-500">{sale.customer_phone}</div>}
+                                        {sale.customer_address && <div className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{sale.customer_address}</div>}
                                     </div>
                                 )}
                             </div>
