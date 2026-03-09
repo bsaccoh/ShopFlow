@@ -146,7 +146,7 @@ const SaleDetailsModal = ({ isOpen, onClose, saleId }) => {
                                 <div className="p-4 bg-slate-50 rounded-lg space-y-2 text-sm text-slate-600 border border-slate-100">
                                     <div className="flex justify-between items-center">
                                         <span className="font-medium text-slate-500">Status</span>
-                                        <span className="font-bold text-slate-800">
+                                        <span className={`font-bold ${saleDetails.sale.payment_status === 'CREDIT' || saleDetails.sale.payment_status === 'PARTIAL_CREDIT' ? 'text-rose-600' : 'text-slate-800'}`}>
                                             {saleDetails.sale.payment_status}
                                         </span>
                                     </div>

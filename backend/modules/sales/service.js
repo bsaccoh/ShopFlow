@@ -114,12 +114,17 @@ const processSale = async (tenantId, userId, saleData) => {
         let paymentStatus = 'PENDING';
 
         if (status === 'COMPLETED' && payment_methods && payment_methods.length > 0) {
-            paidAmount = payment_methods.reduce((acc, pm) => acc + parseFloat(pm.amount), 0);
+            // Only count actual cash/card/digital payments, not CREDIT
+            paidAmount = payment_methods
+                .filter(pm => pm.method !== 'CREDIT')
+                .reduce((acc, pm) => acc + parseFloat(pm.amount), 0);
 
-            // Allow change only if all payments are CASH
+            const hasCredit = payment_methods.some(pm => pm.method === 'CREDIT');
             const isOnlyCash = payment_methods.every(pm => pm.method === 'CASH');
 
-            if (paidAmount < totalAmount) {
+            if (hasCredit) {
+                paymentStatus = (paidAmount > 0) ? 'PARTIAL_CREDIT' : 'CREDIT';
+            } else if (paidAmount < totalAmount) {
                 paymentStatus = 'PARTIAL';
             } else if (paidAmount >= totalAmount) {
                 paymentStatus = 'PAID';

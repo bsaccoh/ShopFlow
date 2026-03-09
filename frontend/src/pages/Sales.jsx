@@ -122,8 +122,9 @@ const Sales = () => {
                 const status = row.payment_status;
                 let colorClasses = "bg-slate-100 text-slate-700";
                 if (status === 'PAID') colorClasses = "bg-emerald-100 text-emerald-700";
+                if (status === 'CREDIT' || status === 'PARTIAL_CREDIT') colorClasses = "bg-rose-100 text-rose-700";
                 if (status === 'PENDING') colorClasses = "bg-amber-100 text-amber-700";
-                if (status === 'REFUNDED') colorClasses = "bg-rose-100 text-rose-700";
+                if (status === 'REFUNDED') colorClasses = "bg-slate-100 text-slate-700";
 
                 return (
                     <span className={`px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${colorClasses}`}>
