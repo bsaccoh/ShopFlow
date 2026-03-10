@@ -46,6 +46,7 @@ const getSalesHistory = async (req, res) => {
             cashierId: req.user.role === 'admin' || req.user.role === 'manager'
                 ? req.query.cashier_id // Admin can filter by cashier
                 : req.user.id, // Cashier can only see their own sales
+            customerId: req.query.customer_id,
             page: parseInt(req.query.page) || 1,
             limit: parseInt(req.query.limit) || 20
         };

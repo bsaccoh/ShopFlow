@@ -250,6 +250,11 @@ const getHistory = async (tenantId, filters) => {
         params.push(filters.paymentStatus);
     }
 
+    if (filters.customerId) {
+        sql += ' AND s.customer_id = ?';
+        params.push(filters.customerId);
+    }
+
     sql += ' ORDER BY s.created_at DESC LIMIT ? OFFSET ?';
     const offset = (filters.page - 1) * filters.limit;
     params.push(filters.limit, offset);
@@ -257,7 +262,13 @@ const getHistory = async (tenantId, filters) => {
     const [sales] = await query(sql, params);
 
     // Get total count for pagination
-    const [countRows] = await query('SELECT COUNT(*) as total FROM sales WHERE tenant_id = ?', [tenantId]); // Needs filter sync for real app
+    let countSql = 'SELECT COUNT(*) as total FROM sales WHERE tenant_id = ?';
+    const countParams = [tenantId];
+    if (filters.customerId) {
+        countSql += ' AND customer_id = ?';
+        countParams.push(filters.customerId);
+    }
+    const [countRows] = await query(countSql, countParams);
 
     return {
         data: sales,
