@@ -648,12 +648,6 @@ CREATE TABLE IF NOT EXISTS tax_config (
 -- POSTGRESQL INDEXES
 -- ============================================
 
-
-
--- ============================================
--- POSTGRESQL INDEXES
--- ============================================
-
 CREATE INDEX IF NOT EXISTS idx_tenants_slug ON tenants (slug);
 CREATE INDEX IF NOT EXISTS idx_tenants_active ON tenants (is_active);
 CREATE INDEX IF NOT EXISTS idx_sub_tenant ON subscriptions (tenant_id);

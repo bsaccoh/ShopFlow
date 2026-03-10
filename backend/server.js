@@ -49,17 +49,13 @@ app.use(`${API_PREFIX}`, apiRoutes);
 const setupSwagger = require('./config/swagger');
 setupSwagger(app);
 
-// Database Sync (Add missing columns automatically)
-const { syncDatabase } = require('./database/sync');
-syncDatabase();
-
 // Start Background Jobs
 const { startReconciliationJob } = require('./modules/payments/reconciliation.job');
 startReconciliationJob();
 
 // 404 handler
-app.use((req, res, next) => {
-    sendError(res, 'Route not found', null, 404);
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'API Route not found' });
 });
 
 // Global Error Handler
@@ -72,8 +68,16 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`🚀 POS Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+
+    // Run Database Sync after server is up to avoid blocking health checks
+    try {
+        const { syncDatabase } = require('./database/sync');
+        await syncDatabase();
+    } catch (error) {
+        console.error('Failed to initiate database sync:', error);
+    }
 });
 
 module.exports = app;
