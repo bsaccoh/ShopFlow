@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Gift, AlertCircle, Phone, Mail, History as HistoryIcon } from 'lucide-react';
+import { Users, UserPlus, Gift, AlertCircle, Phone, Mail, HistoryIcon } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import CustomerFormModal from '../components/CustomerFormModal';
 import CustomerHistoryModal from '../components/CustomerHistoryModal';
