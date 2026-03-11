@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Gift, AlertCircle, Phone, Mail, History } from 'lucide-react';
+import { Users, UserPlus, Gift, AlertCircle, Phone, Mail, History as HistoryIcon } from 'lucide-react';
 import DataTable from '../components/DataTable';
 import CustomerFormModal from '../components/CustomerFormModal';
 import CustomerHistoryModal from '../components/CustomerHistoryModal';
@@ -95,7 +95,7 @@ const Customers = () => {
                         className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors group relative"
                         title="View Purchase History"
                     >
-                        <History className="w-4.5 h-4.5" />
+                        <HistoryIcon className="w-5 h-5" />
                         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
                             Purchase History
                         </span>
