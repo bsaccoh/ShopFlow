@@ -70,9 +70,9 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
         try {
             const dataToSubmit = {
                 ...formData,
-                cost_price: parseFloat(formData.cost_price),
-                selling_price: parseFloat(formData.selling_price),
-                min_stock_level: parseInt(formData.min_stock_level),
+                cost_price: formData.cost_price ? parseFloat(formData.cost_price) : 0,
+                selling_price: formData.selling_price ? parseFloat(formData.selling_price) : 0,
+                min_stock_level: formData.min_stock_level ? parseInt(formData.min_stock_level) : 0,
             };
             if (!isEditMode) {
                 dataToSubmit.initial_stock = parseInt(formData.current_stock);
@@ -140,13 +140,13 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Cost Price *</label>
-                            <input type="number" step="0.01" name="cost_price" required value={formData.cost_price} onChange={handleChange} className="input-field" />
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Cost Price</label>
+                            <input type="number" step="0.01" name="cost_price" value={formData.cost_price} onChange={handleChange} className="input-field" placeholder="0.00" />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Selling Price *</label>
-                            <input type="number" step="0.01" name="selling_price" required value={formData.selling_price} onChange={handleChange} className="input-field" />
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Selling Price</label>
+                            <input type="number" step="0.01" name="selling_price" value={formData.selling_price} onChange={handleChange} className="input-field" placeholder="0.00" />
                         </div>
 
                         {!isEditMode && (

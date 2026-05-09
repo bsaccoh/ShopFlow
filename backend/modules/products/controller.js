@@ -48,8 +48,8 @@ const createProduct = async (req, res) => {
     try {
         const { name, cost_price, selling_price, barcode } = req.body;
 
-        if (!name || cost_price === undefined || selling_price === undefined) {
-            return sendError(res, 'Name, cost price, and selling price are required', null, 400);
+        if (!name) {
+            return sendError(res, 'Name is required', null, 400);
         }
 
         const productData = {

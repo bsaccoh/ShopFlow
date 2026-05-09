@@ -55,7 +55,44 @@ const createCustomer = async (req, res) => {
     }
 };
 
+const updateCustomer = async (req, res) => {
+    try {
+        const tenantId = req.tenantId;
+        const { id } = req.params;
+        const { name, email, phone, address } = req.body;
+
+        if (!name) {
+            return sendError(res, 'Customer name is required', null, 400);
+        }
+
+        // Verify customer belongs to this tenant
+        const [existing] = await query(
+            'SELECT id FROM customers WHERE id = ? AND tenant_id = ?',
+            [id, tenantId]
+        );
+        if (existing.length === 0) {
+            return sendError(res, 'Customer not found', null, 404);
+        }
+
+        await query(
+            'UPDATE customers SET name = ?, email = ?, phone = ?, address = ? WHERE id = ? AND tenant_id = ?',
+            [name, email || null, phone || null, address || null, id, tenantId]
+        );
+
+        const updatedCustomer = { id: parseInt(id), name, email, phone, address };
+
+        if (req.audit) {
+            await req.audit('CUSTOMER_UPDATE', id, null, updatedCustomer);
+        }
+
+        return sendSuccess(res, 'Customer updated successfully', updatedCustomer);
+    } catch (error) {
+        return sendError(res, 'Failed to update customer', error.message, 500);
+    }
+};
+
 module.exports = {
     getCustomers,
-    createCustomer
+    createCustomer,
+    updateCustomer
 };

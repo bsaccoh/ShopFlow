@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Mail, Phone, MapPin } from 'lucide-react';
 import { customerApi } from '../services/api';
 
-const CustomerFormModal = ({ isOpen, onClose, onSuccess }) => {
+const CustomerFormModal = ({ isOpen, onClose, onSuccess, editCustomer }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -12,21 +12,42 @@ const CustomerFormModal = ({ isOpen, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    useEffect(() => {
+        if (isOpen && editCustomer) {
+            setFormData({
+                name: editCustomer.name || '',
+                email: editCustomer.email || '',
+                phone: editCustomer.phone || '',
+                address: editCustomer.address || ''
+            });
+        } else if (isOpen) {
+            setFormData({
+                name: '', email: '', phone: '', address: ''
+            });
+        }
+    }, [isOpen, editCustomer]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
         try {
-            const res = await customerApi.createCustomer(formData);
+            let res;
+            if (editCustomer) {
+                res = await customerApi.updateCustomer(editCustomer.id, formData);
+            } else {
+                res = await customerApi.createCustomer(formData);
+            }
+
             if (res.success) {
                 onSuccess(res.data);
                 onClose();
             } else {
-                setError(res.message || 'Failed to create customer');
+                setError(res.message || `Failed to ${editCustomer ? 'update' : 'create'} customer`);
             }
         } catch (err) {
-            setError(err.message || 'Failed to create customer. Please try again.');
+            setError(err.message || `Failed to ${editCustomer ? 'update' : 'create'} customer. Please try again.`);
         } finally {
             setLoading(false);
         }
@@ -40,7 +61,7 @@ const CustomerFormModal = ({ isOpen, onClose, onSuccess }) => {
                 <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <UserPlus className="w-5 h-5 text-brand-500" />
-                        Add New Customer
+                        {editCustomer ? 'Edit Customer' : 'Add New Customer'}
                     </h2>
                     <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full text-slate-500 transition-colors">
                         <X className="w-5 h-5" />
@@ -121,7 +142,7 @@ const CustomerFormModal = ({ isOpen, onClose, onSuccess }) => {
                         disabled={loading}
                         className="btn-primary px-6 py-2 text-sm"
                     >
-                        {loading ? 'Saving...' : 'Save Customer'}
+                        {loading ? 'Saving...' : (editCustomer ? 'Save Changes' : 'Save Customer')}
                     </button>
                 </div>
             </div>

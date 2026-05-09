@@ -13,5 +13,6 @@ router.use(tenantGuard);
 
 router.get('/', controller.getCustomers);
 router.post('/', authorizeRole(['admin', 'manager', 'cashier']), auditMiddleware('Customers'), controller.createCustomer);
+router.put('/:id', authorizeRole(['admin', 'manager', 'cashier']), auditMiddleware('Customers'), controller.updateCustomer);
 
 module.exports = router;
