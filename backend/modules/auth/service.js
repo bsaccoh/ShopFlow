@@ -21,16 +21,22 @@ const authenticateUser = async (email, password, isSuperAdmin = false) => {
     const isSystemAdmin = isSuperAdmin || email === 'admin@babahpos.com';
 
     if (isSystemAdmin) {
+        console.log(`[Auth] Looking up superadmin: ${email}`);
         const [rows] = await query('SELECT * FROM super_admins WHERE email = ?', [email]);
+        console.log(`[Auth] Found ${rows.length} superadmin(s)`);
         if (rows.length === 0) throw new Error('Invalid credentials');
         userRecord = rows[0];
+        console.log(`[Auth] Superadmin found: ${userRecord.email}, is_active: ${userRecord.is_active}`);
 
         // PostgreSQL returns boolean true/false native, MySQL BIT(1) could be Buffer
         const isActive = userRecord.is_active === true || userRecord.is_active === 1 || (Buffer.isBuffer(userRecord.is_active) && userRecord.is_active[0] === 1);
 
         if (!isActive) throw new Error('Account inactive');
 
+        console.log(`[Auth] Checking superadmin password for ${email}`);
+        console.log(`[Auth] Input password: '${password}'`);
         const isValid = await bcrypt.compare(password, userRecord.password_hash);
+        console.log(`[Auth] Superadmin password match: ${isValid}`);
         if (!isValid) throw new Error('Invalid credentials');
 
         payload = {
@@ -40,23 +46,41 @@ const authenticateUser = async (email, password, isSuperAdmin = false) => {
             role: 'super_admin'
         };
     } else {
-        // Regular tenant user
-        const [rows] = await query(`
-      SELECT u.*, r.slug as role_slug, t.name as tenant_name, t.settings as tenant_settings, b.name as branch_name
-      FROM users u 
-      LEFT JOIN roles r ON u.role_id = r.id 
-      LEFT JOIN tenants t ON u.tenant_id = t.id
-      LEFT JOIN branches b ON u.branch_id = b.id
-      WHERE u.email = ?
-    `, [email]);
+        // Regular tenant user - explicit column selection to handle missing branch_id
+        console.log(`[Auth] Looking up user: ${email}`);
+        let rows;
+        try {
+            const [result] = await query(`
+        SELECT u.id, u.tenant_id, u.role_id, u.email, u.password_hash, 
+               u.first_name, u.last_name, u.phone, u.avatar_url, u.is_active, 
+               u.last_login, u.refresh_token, u.created_at, u.updated_at,
+               r.slug as role_slug, t.name as tenant_name, t.settings as tenant_settings
+        FROM users u 
+        LEFT JOIN roles r ON u.role_id = r.id 
+        LEFT JOIN tenants t ON u.tenant_id = t.id
+        WHERE u.email = ?
+      `, [email]);
+            rows = result;
+        } catch (dbError) {
+            console.error(`[Auth] Database query failed:`, dbError.message);
+            throw new Error('Database error during login');
+        }
 
-        if (rows.length === 0) throw new Error('Invalid credentials');
+        console.log(`[Auth] Found ${rows.length} user(s)`);
+        if (rows.length === 0) {
+            console.log(`[Auth] No user found with email: ${email}`);
+            throw new Error('Invalid credentials');
+        }
         userRecord = rows[0];
+        console.log(`[Auth] User found: ${userRecord.email}, is_active: ${userRecord.is_active}`);
 
         const isActive = userRecord.is_active === true || userRecord.is_active === 1 || (Buffer.isBuffer(userRecord.is_active) && userRecord.is_active[0] === 1);
         if (!isActive) throw new Error('Account inactive');
 
+        console.log(`[Auth] Checking password for ${email}`);
+        console.log(`[Auth] Input password: '${password}'`);
         const isValid = await bcrypt.compare(password, userRecord.password_hash);
+        console.log(`[Auth] Password match: ${isValid}`);
         if (!isValid) throw new Error('Invalid credentials');
 
         payload = {

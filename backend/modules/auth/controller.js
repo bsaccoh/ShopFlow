@@ -57,14 +57,14 @@ const login = async (req, res) => {
 
 const registerTenant = async (req, res) => {
     try {
-        const { tenantName, email, password, firstName, lastName, phone } = req.body;
+        const { tenantName, email, password, firstName, lastName, phone, planId, billingCycle, enabledFeatures, paymentProvider } = req.body;
 
         if (!tenantName || !email || !password || !firstName || !lastName) {
             return sendError(res, 'All required fields must be provided', null, 400);
         }
 
         const result = await authService.createNewTenant({
-            tenantName, email, password, firstName, lastName, phone
+            tenantName, email, password, firstName, lastName, phone, planId, billingCycle, enabledFeatures, paymentProvider
         });
 
         // Log tenant registration

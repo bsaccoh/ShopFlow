@@ -128,6 +128,7 @@ const Customers = () => {
                 data={customers}
                 loading={loading}
                 onSearch={setSearchQuery}
+                actions={false}
                 searchPlaceholder="Search customers by name, phone or email..."
                 emptyMessage={searchQuery ? "No customers found matching your search." : "No customers added yet."}
             />

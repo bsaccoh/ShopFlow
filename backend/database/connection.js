@@ -15,8 +15,8 @@ poolConfig.max = parseInt(process.env.DB_POOL_MAX || '10', 10);
 poolConfig.idleTimeoutMillis = 30000;
 poolConfig.connectionTimeoutMillis = 2000;
 
-// Render and other managed Postgres often require SSL in production
-if (process.env.NODE_ENV === 'production') {
+// Render and other managed Postgres often require SSL
+if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL) {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
