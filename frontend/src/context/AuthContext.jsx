@@ -105,6 +105,32 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    // Idle Timer (30 minutes)
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
+        let timeoutId;
+
+        const resetTimer = () => {
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                logout();
+                alert('Session expired due to inactivity. Please login again.');
+            }, INACTIVITY_LIMIT);
+        };
+
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        events.forEach(event => window.addEventListener(event, resetTimer));
+
+        resetTimer();
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+            events.forEach(event => window.removeEventListener(event, resetTimer));
+        };
+    }, [isAuthenticated]);
+
     return (
         <AuthContext.Provider value={{ user, isAuthenticated, loading, login, registerTenant, logout }}>
             {children}

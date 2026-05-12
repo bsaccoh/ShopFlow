@@ -259,7 +259,7 @@ const POS = () => {
         : 0;
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] -m-4 bg-slate-50 relative overflow-hidden font-sans">
+        <div className="flex h-[calc(100vh-4rem)] bg-slate-50 relative overflow-hidden font-sans">
             {/* Left side: Products (70%) */}
             <div className="flex-[7] flex flex-col bg-slate-50 border-r border-slate-200">
                 {/* Search & Scan Header */}
@@ -325,28 +325,28 @@ const POS = () => {
                             <p>No products found</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3">
                             {filteredProducts.map(product => {
                                 const isOutOfStock = product.quantity <= 0;
                                 return (
                                     <div
                                         key={product.id}
                                         onClick={() => !isOutOfStock && addToCart(product)}
-                                        className={`rounded-xl border border-slate-200 overflow-hidden flex flex-col h-[200px] transition-all bg-white
+                                        className={`rounded-lg border border-slate-200 overflow-hidden flex flex-col h-[150px] transition-all bg-white
                                             ${isOutOfStock ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:shadow-md hover:border-slate-300 active:scale-[0.98]'}`}
                                     >
-                                        {/* Top Grey Area with Watermark & Badge */}
-                                        <div className="bg-slate-50 h-[60%] relative flex items-center justify-center border-b border-slate-100">
-                                            <div className="absolute top-2 right-2 bg-white px-2 py-0.5 rounded text-xs font-bold text-slate-700 border border-slate-200 shadow-sm">
+                                        {/* Top Area with Watermark & Badge */}
+                                        <div className="bg-slate-50 h-[50%] relative flex items-center justify-center border-b border-slate-100">
+                                            <div className="absolute top-1.5 right-1.5 bg-white px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-700 border border-slate-200 shadow-sm">
                                                 Qty: {product.quantity}
                                             </div>
-                                            <span className="text-5xl font-black text-slate-200 tracking-tighter w-full text-center truncate px-2 select-none">
+                                            <span className="text-3xl font-black text-slate-200 tracking-tighter w-full text-center truncate px-2 select-none">
                                                 {getInitials(product.name)}
                                             </span>
                                         </div>
 
-                                        {/* Bottom White Area with Details */}
-                                        <div className="h-[40%] p-3 flex flex-col justify-between">
+                                        {/* Bottom Area with Details */}
+                                        <div className="h-[50%] p-2 flex flex-col justify-between">
                                             <div>
                                                 <p className="text-xs font-bold text-slate-800 leading-tight line-clamp-1">{product.name}</p>
                                                 <p className="text-[10px] text-slate-500 mt-0.5 truncate">{product.sku || 'No SKU'}</p>

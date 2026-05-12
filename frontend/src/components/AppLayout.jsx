@@ -238,7 +238,7 @@ const AppLayout = () => {
                     </div>
                 </div>
 
-                <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+                <main className={`flex-1 w-full ${location.pathname === '/pos' ? '' : 'py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto'}`}>
                     <Outlet />
                 </main>
             </div>
