@@ -202,7 +202,7 @@ const AppLayout = () => {
             {/* Main Content Area */}
             <div className={`flex flex-1 flex-col ${contentPadding} transition-all duration-300`}>
                 {/* Top Header Bar */}
-                <div className="sticky top-0 z-20 flex h-16 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 shadow-sm sm:px-6 lg:px-8">
+                <div className={`sticky top-0 z-20 flex h-16 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md shadow-sm transition-all ${location.pathname === '/pos' ? 'px-4' : 'px-4 sm:px-6 lg:px-8'}`}>
                     {/* Left: hamburger (mobile) + tenant name */}
                     <div className="flex items-center gap-4">
                         <button type="button" className="-m-2.5 p-2.5 text-slate-700 lg:hidden" onClick={() => setSidebarOpen(true)}>

@@ -259,9 +259,9 @@ const POS = () => {
         : 0;
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] bg-slate-50 relative overflow-hidden font-sans">
-            {/* Left side: Products (70%) */}
-            <div className="flex-[7] flex flex-col bg-slate-50 border-r border-slate-200">
+        <div className="flex w-full h-[calc(100vh-4rem)] bg-slate-50 relative overflow-hidden font-sans">
+            {/* Left side: Products */}
+            <div className="flex-1 flex flex-col min-w-0 bg-slate-50 border-r border-slate-200">
                 {/* Search & Scan Header */}
                 <div className="p-4 bg-white border-b border-slate-200 flex gap-4">
                     <div className="relative flex-1">
@@ -363,8 +363,8 @@ const POS = () => {
                 </div>
             </div>
 
-            {/* Right side: Cart (30%) */}
-            <div className="flex-[3] flex flex-col bg-white w-full max-w-[400px]">
+            {/* Right side: Cart */}
+            <div className="w-[360px] xl:w-[400px] shrink-0 flex flex-col bg-white">
                 {/* Cart Header */}
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-slate-900 font-bold">
