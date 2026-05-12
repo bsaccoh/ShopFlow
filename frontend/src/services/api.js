@@ -106,8 +106,6 @@ export const categoryApi = {
     deleteCategory: (id) => apiClient.delete(`/categories/${id}`)
 };
 
-
-
 export const staffApi = {
     getStaff: (search) => apiClient.get(`/users${search ? `?search=${search}` : ''}`),
     createStaff: (data) => apiClient.post('/users', data),
@@ -146,6 +144,8 @@ export const reportsApi = {
     getSalesReport: (params) => apiClient.get('/reports/sales', { params }),
     getLowStockItems: () => apiClient.get('/reports/low-stock'),
     getProfitLoss: (params) => apiClient.get('/reports/profit-loss', { params }),
+    getCustomerHistory: (id) => apiClient.get(`/reports/customer-history/${id}`),
+    getCustomerItems: (id) => apiClient.get(`/reports/customer-items/${id}`),
 };
 
 export const supplierApi = {
@@ -225,4 +225,3 @@ export const branchApi = {
 };
 
 export default apiClient;
-

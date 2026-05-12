@@ -13,5 +13,7 @@ router.get('/dashboard', controller.getTenantDashboardStats);
 router.get('/sales', controller.getSalesReport);
 router.get('/low-stock', controller.getLowStockItems);
 router.get('/profit-loss', controller.getProfitAndLoss);
+router.get('/customer-history/:id', controller.getCustomerHistory);
+router.get('/customer-items/:id', controller.getCustomerItems);
 
 module.exports = router;

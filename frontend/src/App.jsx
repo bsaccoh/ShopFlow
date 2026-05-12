@@ -32,6 +32,9 @@ import CashRegister from './pages/CashRegister';
 import ProfitLoss from './pages/ProfitLoss';
 import CustomerCredits from './pages/CustomerCredits';
 import LoyaltyPoints from './pages/LoyaltyPoints';
+import CustomerHistory from './pages/CustomerHistory';
+import CustomerHistoryDetail from './pages/CustomerHistoryDetail';
+
 // Placeholder Pages
 const Stub = ({ title }) => <div className="p-8 text-center text-slate-500 font-medium bg-white rounded-xl shadow-sm border border-slate-200">{title} Module - Under Construction</div>;
 
@@ -73,6 +76,8 @@ function App() {
                         <Route path="inventory" element={<Inventory />} />
                         <Route path="sales" element={<Sales />} />
                         <Route path="customers" element={<Customers />} />
+                        <Route path="customer-history" element={<CustomerHistory />} />
+                        <Route path="customer-history/:id" element={<CustomerHistoryDetail />} />
                         <Route path="staff" element={<Staff />} />
                         <Route path="suppliers" element={<Suppliers />} />
                         <Route path="purchase-orders" element={<PurchaseOrders />} />

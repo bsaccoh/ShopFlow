@@ -336,9 +336,79 @@ const getProfitAndLoss = async (req, res) => {
     }
 };
 
+const getCustomerHistory = async (req, res) => {
+    try {
+        const tenantId = req.tenantId;
+        const { id } = req.params;
+
+        const [[summary]] = await query(`
+            SELECT 
+                COUNT(id) as total_visits,
+                COALESCE(SUM(total_amount), 0) as total_spent,
+                MAX(created_at) as last_visit
+            FROM sales 
+            WHERE tenant_id = ? AND customer_id = ? AND status != 'VOIDED'
+        `, [tenantId, id]);
+
+        const [recentSales] = await query(`
+            SELECT id, sale_number, total_amount, payment_status, status, created_at 
+            FROM sales 
+            WHERE tenant_id = ? AND customer_id = ?
+            ORDER BY created_at DESC 
+            LIMIT 10
+        `, [tenantId, id]);
+
+        const [topProducts] = await query(`
+            SELECT p.name, SUM(si.quantity) as total_qty, SUM(si.total) as total_revenue
+            FROM sale_items si
+            JOIN products p ON si.product_id = p.id
+            JOIN sales s ON si.sale_id = s.id
+            WHERE s.tenant_id = ? AND s.customer_id = ? AND s.status != 'VOIDED'
+            GROUP BY si.product_id, p.name
+            ORDER BY total_qty DESC
+            LIMIT 5
+        `, [tenantId, id]);
+
+        return sendSuccess(res, 'Customer history retrieved', {
+            summary,
+            recentSales,
+            topProducts
+        });
+    } catch (error) {
+        return sendError(res, 'Failed to fetch customer history', error.message, 500);
+    }
+};
+
+const getCustomerItems = async (req, res) => {
+    try {
+        const tenantId = req.tenantId;
+        const { id } = req.params;
+
+        const [items] = await query(`
+            SELECT 
+                si.product_name,
+                si.quantity,
+                si.unit_price,
+                si.total,
+                s.sale_number,
+                s.created_at as sale_date
+            FROM sale_items si
+            JOIN sales s ON si.sale_id = s.id
+            WHERE s.tenant_id = ? AND s.customer_id = ? AND s.status != 'VOIDED'
+            ORDER BY s.created_at DESC
+        `, [tenantId, id]);
+
+        return sendSuccess(res, 'Customer items retrieved', items);
+    } catch (error) {
+        return sendError(res, 'Failed to fetch customer items', error.message, 500);
+    }
+};
+
 module.exports = {
     getTenantDashboardStats,
     getSalesReport,
     getLowStockItems,
-    getProfitAndLoss
+    getProfitAndLoss,
+    getCustomerHistory,
+    getCustomerItems
 };
