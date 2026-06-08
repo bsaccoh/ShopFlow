@@ -149,7 +149,14 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
                             <input type="number" step="0.01" name="selling_price" value={formData.selling_price} onChange={handleChange} className="input-field" placeholder="0.00" />
                         </div>
 
-                        {!isEditMode && (
+                        {isEditMode ? (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Current Stock</label>
+                                <div className="input-field bg-slate-50 text-slate-600 cursor-default select-none">
+                                    {formData.current_stock}
+                                </div>
+                            </div>
+                        ) : (
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Initial Stock</label>
                                 <input type="number" name="current_stock" required value={formData.current_stock} onChange={handleChange} className="input-field" />
