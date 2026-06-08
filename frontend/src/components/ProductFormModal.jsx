@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { posApi, categoryApi, inventoryApi } from '../services/api';
+import { posApi, categoryApi } from '../services/api';
 import { X } from 'lucide-react';
 
 const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
@@ -15,7 +15,6 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
         current_stock: 0
     });
     const [categories, setCategories] = useState([]);
-    const [inventoryStock, setInventoryStock] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -34,11 +33,9 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
                     cost_price: editProduct.cost_price || '',
                     selling_price: editProduct.selling_price || '',
                     min_stock_level: editProduct.min_stock_level || 5,
-                    current_stock: 0
+                    current_stock: editProduct.quantity ?? editProduct.stock_quantity ?? 0
                 });
-                fetchInventoryStock(editProduct.id);
             } else {
-                setInventoryStock(null);
                 setFormData({
                     name: '', sku: '', barcode: '', description: '',
                     category_id: '', cost_price: '', selling_price: '',
@@ -48,19 +45,6 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
             setError('');
         }
     }, [isOpen, editProduct]);
-
-    const fetchInventoryStock = async (productId) => {
-        try {
-            const res = await inventoryApi.getLevels();
-            if (res.success) {
-                const match = res.data.find(item => item.product_id === productId);
-                setInventoryStock(match ? match.quantity : 0);
-            }
-        } catch (err) {
-            console.error('Failed to load inventory stock', err);
-            setInventoryStock(0);
-        }
-    };
 
     const fetchCategories = async () => {
         try {
@@ -169,7 +153,7 @@ const ProductFormModal = ({ isOpen, onClose, onRefresh, editProduct }) => {
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Current Stock</label>
                                 <div className="input-field bg-slate-50 text-slate-600 cursor-default select-none">
-                                    {inventoryStock === null ? 'Loading...' : inventoryStock}
+                                    {formData.current_stock}
                                 </div>
                             </div>
                         ) : (
