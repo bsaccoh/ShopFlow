@@ -13,10 +13,10 @@ const subscriptionGuard = async (req, res, next) => {
 
     try {
         const [rows] = await query(`
-      SELECT s.status, s.current_period_end, p.has_api_access, p.has_advanced_reports, p.has_multi_warehouse, p.has_mobile_money
+      SELECT s.status, s.current_period_end, p.has_api_access, p.has_advanced_reports, p.has_multi_warehouse, p.has_mobile_money, p.max_branches
       FROM subscriptions s
       JOIN subscription_plans p ON s.plan_id = p.id
-      WHERE s.tenant_id = ? 
+      WHERE s.tenant_id = ?
       ORDER BY s.id DESC LIMIT 1
     `, [req.tenantId]);
 
@@ -46,7 +46,8 @@ const subscriptionGuard = async (req, res, next) => {
             apiAccess: subscription.has_api_access === 1,
             advancedReports: subscription.has_advanced_reports === 1,
             multiWarehouse: subscription.has_multi_warehouse === 1,
-            mobileMoney: subscription.has_mobile_money === 1
+            mobileMoney: subscription.has_mobile_money === 1,
+            maxBranches: subscription.max_branches || 1
         };
 
         next();

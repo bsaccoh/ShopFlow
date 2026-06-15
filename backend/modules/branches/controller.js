@@ -12,14 +12,10 @@ const getBranches = async (req, res) => {
 
 const createBranch = async (req, res) => {
     try {
-        // Multi-warehouse feature check
-        if (!req.subscriptionFeatures?.multiWarehouse) {
-            return sendError(res, 'Multi-branch feature requires a plan upgrade', null, 403);
-        }
-
+        const maxBranches = req.subscriptionFeatures?.maxBranches || 1;
         const currentBranches = await branchService.getAll(req.tenantId);
-        if (currentBranches.length >= (req.subscriptionFeatures?.maxBranches || 1)) {
-            return sendError(res, `Branch limit reached (${req.subscriptionFeatures?.maxBranches || 1}). Please upgrade your plan.`, null, 403);
+        if (currentBranches.length >= maxBranches) {
+            return sendError(res, `Branch limit reached (${maxBranches}). Please upgrade your plan to add more branches.`, null, 403);
         }
 
         const data = { ...req.body, tenantId: req.tenantId };

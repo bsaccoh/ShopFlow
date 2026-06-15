@@ -124,6 +124,7 @@ export const adminApi = {
     getTenantById: (id) => apiClient.get(`/super-admin/tenants/${id}`),
     updateTenant: (id, data) => apiClient.put(`/super-admin/tenants/${id}`, data),
     updateTenantStatus: (id, is_active) => apiClient.patch(`/super-admin/tenants/${id}/status`, { is_active }),
+    resetTenantPassword: (id, new_password) => apiClient.post(`/super-admin/tenants/${id}/reset-password`, { new_password }),
     getSubscriptions: () => apiClient.get('/super-admin/subscriptions'),
     getPlans: () => apiClient.get('/super-admin/plans'),
     createPlan: (data) => apiClient.post('/super-admin/plans', data),

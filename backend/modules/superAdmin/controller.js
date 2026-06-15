@@ -382,6 +382,40 @@ const updateAdminStatus = async (req, res) => {
     }
 };
 
+// ── Tenant Password Reset ────────────────────────────────────
+const resetTenantPassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { new_password } = req.body;
+
+        if (!new_password || new_password.length < 6) {
+            return sendError(res, 'New password must be at least 6 characters', null, 400);
+        }
+
+        // Find the admin user for this tenant
+        const [users] = await query(
+            `SELECT u.id FROM users u
+             JOIN roles r ON u.role_id = r.id
+             WHERE u.tenant_id = ? AND r.slug = 'admin'
+             ORDER BY u.created_at ASC LIMIT 1`,
+            [id]
+        );
+
+        if (users.length === 0) {
+            return sendError(res, 'No admin user found for this tenant', null, 404);
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(new_password, salt);
+
+        await query('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, users[0].id]);
+
+        return sendSuccess(res, 'Tenant password reset successfully');
+    } catch (error) {
+        return sendError(res, 'Failed to reset tenant password', error.message, 500);
+    }
+};
+
 // ── Activity Logs ────────────────────────────────────────────
 const getActivityLogs = async (req, res) => {
     try {
@@ -416,6 +450,7 @@ module.exports = {
     getTenantById,
     updateTenant,
     updateTenantStatus,
+    resetTenantPassword,
     getSubscriptions,
     getPlans,
     createPlan,
