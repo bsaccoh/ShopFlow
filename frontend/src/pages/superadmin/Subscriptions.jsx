@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, ArrowUpRight, CheckCircle, XCircle } from 'lucide-react';
+import { CreditCard, ArrowUpRight, CheckCircle, XCircle, RefreshCw, X } from 'lucide-react';
 import DataTable from '../../components/DataTable';
 import { adminApi } from '../../services/api';
 
@@ -7,6 +7,9 @@ const Subscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [renewTarget, setRenewTarget] = useState(null);
+    const [renewMonths, setRenewMonths] = useState(1);
+    const [renewing, setRenewing] = useState(false);
 
     useEffect(() => {
         loadSubscriptions();
@@ -23,6 +26,22 @@ const Subscriptions = () => {
             console.error("Failed to load subscriptions:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRenew = async (e) => {
+        e.preventDefault();
+        setRenewing(true);
+        try {
+            const res = await adminApi.renewSubscription(renewTarget.id, { months: renewMonths });
+            if (res.success) {
+                setRenewTarget(null);
+                loadSubscriptions();
+            }
+        } catch (error) {
+            alert('Failed to renew: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setRenewing(false);
         }
     };
 
@@ -81,6 +100,17 @@ const Subscriptions = () => {
                     </span>
                 );
             }
+        },
+        {
+            header: 'Actions',
+            render: (row) => (
+                <button
+                    onClick={() => { setRenewTarget(row); setRenewMonths(1); }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors"
+                >
+                    <RefreshCw className="w-3.5 h-3.5" /> Renew
+                </button>
+            )
         }
     ];
 
@@ -158,6 +188,56 @@ const Subscriptions = () => {
                 searchPlaceholder="Search by tenant or plan..."
                 emptyMessage="No subscription records found."
             />
+
+            {/* Renew Subscription Modal */}
+            {renewTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+                        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+                            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <RefreshCw className="w-4 h-4 text-emerald-600" /> Renew Subscription
+                            </h3>
+                            <button onClick={() => setRenewTarget(null)} className="p-1.5 hover:bg-slate-100 rounded-full">
+                                <X className="w-4 h-4 text-slate-400" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleRenew} className="p-5 space-y-4">
+                            <p className="text-sm text-slate-600">
+                                Renewing subscription for <span className="font-semibold">{renewTarget.tenant_name}</span> on the <span className="font-semibold">{renewTarget.plan_name}</span> plan.
+                            </p>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Extend by (months)</label>
+                                <select
+                                    value={renewMonths}
+                                    onChange={e => setRenewMonths(Number(e.target.value))}
+                                    className="input-field"
+                                >
+                                    {[1, 2, 3, 6, 12].map(m => (
+                                        <option key={m} value={m}>{m} {m === 1 ? 'month' : 'months'}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <p className="text-xs text-slate-500">
+                                New expiry: <span className="font-medium text-slate-700">
+                                    {(() => {
+                                        const base = new Date(renewTarget.current_period_end) > new Date()
+                                            ? new Date(renewTarget.current_period_end)
+                                            : new Date();
+                                        base.setMonth(base.getMonth() + renewMonths);
+                                        return base.toLocaleDateString();
+                                    })()}
+                                </span>
+                            </p>
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button type="button" onClick={() => setRenewTarget(null)} className="btn-secondary px-4 py-2 text-sm">Cancel</button>
+                                <button type="submit" disabled={renewing} className="btn-primary px-4 py-2 text-sm">
+                                    {renewing ? 'Renewing...' : 'Confirm Renewal'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

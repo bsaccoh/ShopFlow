@@ -12,6 +12,7 @@ router.put('/tenants/:id', controller.updateTenant);
 router.patch('/tenants/:id/status', controller.updateTenantStatus);
 router.post('/tenants/:id/reset-password', controller.resetTenantPassword);
 router.get('/subscriptions', controller.getSubscriptions);
+router.post('/subscriptions/:id/renew', controller.renewSubscription);
 
 // Subscription Plans CRUD
 router.get('/plans', controller.getPlans);

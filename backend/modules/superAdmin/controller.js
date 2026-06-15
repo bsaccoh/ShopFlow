@@ -256,6 +256,50 @@ const getSubscriptions = async (req, res) => {
     }
 };
 
+// ── Subscription Renewal ─────────────────────────────────────
+const renewSubscription = async (req, res) => {
+    try {
+        const { id } = req.params; // subscription id
+        const { months = 1, plan_id } = req.body;
+
+        const [rows] = await query('SELECT * FROM subscriptions WHERE id = ?', [id]);
+        if (rows.length === 0) return sendError(res, 'Subscription not found', null, 404);
+
+        const sub = rows[0];
+        // Extend from today if expired, otherwise extend from current end date
+        const baseDate = new Date(sub.current_period_end) > new Date() ? new Date(sub.current_period_end) : new Date();
+        const newEnd = new Date(baseDate);
+        newEnd.setMonth(newEnd.getMonth() + parseInt(months));
+
+        const sets = [
+            'status = ?',
+            'current_period_start = NOW()',
+            'current_period_end = ?',
+            'trial_ends_at = NULL'
+        ];
+        const vals = ['ACTIVE', newEnd];
+
+        if (plan_id) {
+            sets.push('plan_id = ?');
+            vals.push(plan_id);
+        }
+
+        vals.push(id);
+        await query(`UPDATE subscriptions SET ${sets.join(', ')} WHERE id = ?`, vals);
+
+        const [updated] = await query(`
+            SELECT s.*, t.name as tenant_name, p.name as plan_name
+            FROM subscriptions s
+            JOIN tenants t ON s.tenant_id = t.id
+            JOIN subscription_plans p ON s.plan_id = p.id
+            WHERE s.id = ?`, [id]);
+
+        return sendSuccess(res, 'Subscription renewed successfully', updated[0]);
+    } catch (error) {
+        return sendError(res, 'Failed to renew subscription', error.message, 500);
+    }
+};
+
 // ── Subscription Plans CRUD ─────────────────────────────────
 const getPlans = async (req, res) => {
     try {
@@ -452,6 +496,7 @@ module.exports = {
     updateTenantStatus,
     resetTenantPassword,
     getSubscriptions,
+    renewSubscription,
     getPlans,
     createPlan,
     updatePlan,
