@@ -181,7 +181,7 @@ const getTenantById = async (req, res) => {
     try {
         const { id } = req.params;
         const [rows] = await query(`
-            SELECT t.*, s.status as subscription_status, s.billing_cycle, s.current_period_start, s.current_period_end, s.trial_ends_at, s.plan_id,
+            SELECT t.*, s.id as subscription_id, s.status as subscription_status, s.billing_cycle, s.current_period_start, s.current_period_end, s.trial_ends_at, s.plan_id,
                    p.name as plan_name, p.price_monthly, p.max_users, p.max_products
             FROM tenants t
             LEFT JOIN subscriptions s ON t.id = s.tenant_id

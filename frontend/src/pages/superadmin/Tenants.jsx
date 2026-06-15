@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Store, CheckCircle, XCircle, Eye, Edit2, X, Activity, CreditCard, KeyRound } from 'lucide-react';
+import { Plus, Store, CheckCircle, XCircle, Eye, Edit2, X, Activity, CreditCard, KeyRound, RefreshCw } from 'lucide-react';
 import DataTable from '../../components/DataTable';
 import TenantFormModal from '../../components/TenantFormModal';
 import { adminApi } from '../../services/api';
@@ -14,6 +14,8 @@ const Tenants = () => {
     const [resetPasswordTenant, setResetPasswordTenant] = useState(null);
     const [newPassword, setNewPassword] = useState('');
     const [resettingPassword, setResettingPassword] = useState(false);
+    const [renewMonths, setRenewMonths] = useState(1);
+    const [renewingSubscription, setRenewingSubscription] = useState(false);
 
     const loadTenants = async () => {
         try {
@@ -69,6 +71,26 @@ const Tenants = () => {
             alert('Failed to reset password: ' + (error.response?.data?.message || error.message));
         } finally {
             setResettingPassword(false);
+        }
+    };
+
+    const handleRenewSubscription = async () => {
+        if (!viewTenant?.subscription_id) {
+            alert('No subscription found for this tenant');
+            return;
+        }
+        setRenewingSubscription(true);
+        try {
+            const res = await adminApi.renewSubscription(viewTenant.subscription_id, { months: renewMonths });
+            if (res.success) {
+                const updated = await adminApi.getTenantById(viewTenant.id);
+                if (updated.success) setViewTenant(updated.data);
+                setRenewMonths(1);
+            }
+        } catch (error) {
+            alert('Failed to renew: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setRenewingSubscription(false);
         }
     };
 
@@ -288,6 +310,27 @@ const Tenants = () => {
                                                 {viewTenant.current_period_end ? new Date(viewTenant.current_period_end).toLocaleDateString() : 'N/A'}
                                             </p>
                                         </div>
+                                    </div>
+
+                                    {/* Renew inline */}
+                                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
+                                        <select
+                                            value={renewMonths}
+                                            onChange={e => setRenewMonths(Number(e.target.value))}
+                                            className="input-field py-1.5 text-sm w-36"
+                                        >
+                                            {[1, 2, 3, 6, 12].map(m => (
+                                                <option key={m} value={m}>{m} {m === 1 ? 'month' : 'months'}</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={handleRenewSubscription}
+                                            disabled={renewingSubscription}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors disabled:opacity-60"
+                                        >
+                                            <RefreshCw className="w-3.5 h-3.5" />
+                                            {renewingSubscription ? 'Renewing...' : 'Renew Subscription'}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
