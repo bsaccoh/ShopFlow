@@ -12,15 +12,15 @@ const create = async (data) => {
     // If this is the first branch, make it main. If setting main, unset others.
     await withTransaction(async (conn) => {
         const [existing] = await conn.query('SELECT id FROM branches WHERE tenant_id = ? LIMIT 1', [data.tenantId]);
-        const isMain = existing.length === 0 ? 1 : (data.is_main ? 1 : 0);
+        const isMain = existing.length === 0 ? true : (data.is_main ? true : false);
 
-        if (isMain === 1 && existing.length > 0) {
-            await conn.query('UPDATE branches SET is_main = 0 WHERE tenant_id = ?', [data.tenantId]);
+        if (isMain === true && existing.length > 0) {
+            await conn.query('UPDATE branches SET is_main = false WHERE tenant_id = ?', [data.tenantId]);
         }
 
         await conn.query(
             'INSERT INTO branches (tenant_id, name, address, phone, is_main, is_active) VALUES (?, ?, ?, ?, ?, ?)',
-            [data.tenantId, data.name, data.address || null, data.phone || null, isMain, data.is_active !== undefined ? data.is_active : 1]
+            [data.tenantId, data.name, data.address || null, data.phone || null, isMain, data.is_active !== undefined ? Boolean(data.is_active) : true]
         );
     });
 
