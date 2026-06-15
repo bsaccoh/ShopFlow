@@ -5,12 +5,9 @@ const { authenticate } = require('../../middleware/auth');
 const authorizeRole = require('../../middleware/rbac');
 const tenantResolver = require('../../middleware/tenantResolver');
 const tenantGuard = require('../../middleware/tenantGuard');
-const subscriptionGuard = require('../../middleware/subscriptionGuard');
-
 router.use(authenticate);
 router.use(tenantResolver);
 router.use(tenantGuard);
-router.use(subscriptionGuard);
 
 // Basic CRUD for branches (Admins and Managers)
 router.use(authorizeRole(['admin', 'manager']));

@@ -12,12 +12,6 @@ const getBranches = async (req, res) => {
 
 const createBranch = async (req, res) => {
     try {
-        const maxBranches = req.subscriptionFeatures?.maxBranches || 1;
-        const currentBranches = await branchService.getAll(req.tenantId);
-        if (currentBranches.length >= maxBranches) {
-            return sendError(res, `Branch limit reached (${maxBranches}). Please upgrade your plan to add more branches.`, null, 403);
-        }
-
         const data = { ...req.body, tenantId: req.tenantId };
         const newBranch = await branchService.create(data);
 
